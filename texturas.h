@@ -10,6 +10,10 @@
 #include "game.h"
 #include "mapa.h"
 // #include "player.h"
+
+
+void carregarTexturas(ALLEGRO_BITMAP *texture[10]); 
+
 ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h);
 ALLEGRO_BITMAP * inicializaTexturas(int level); 
 void iniciaSpritesObjetos(ALLEGRO_BITMAP* sheet, objetos* obj);

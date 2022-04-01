@@ -3,6 +3,8 @@
 #include "allegro5/allegro_ttf.h"
 #include "game.h"
 #include "mapa.h"
+#include "texturas.h"
+#include "objetos.h"
 
 ALLEGRO_TIMER* timer;
 ALLEGRO_EVENT event;
@@ -12,49 +14,48 @@ ALLEGRO_FONT* font;
 ALLEGRO_BITMAP* sheet;
 objetos *objetos_mapa;
 
+
+#define SCREEN_WIDTH 1200
+#define SCREEN_HEIGHT 680
+
+
+ALLEGRO_BITMAP *texture[20];
+
 int **mapa, relogio = 150;
 long frames = 0;
 unsigned char key[ALLEGRO_KEY_MAX];
-char *cheat_code = "konami";
-
-void inicia_allegro(bool teste, char *descricao){
-  if(teste) 
-  	return;
-  fprintf(stderr, "Não foi possivel inicializar %s\n", descricao);
-  exit(1);
-}
+char *cheat_code = "time";
+ALLEGRO_DISPLAY *display;
+ALLEGRO_EVENT_QUEUE *event_queue;
+ALLEGRO_TIMER *miner_timer, *rock_timer, *spider_timer, *water_timer, *level_timer;
+ALLEGRO_FONT *score_text, *pause_text;
 
 void state_init(){
-  inicia_allegro(al_init(), "allegro");
-  inicia_allegro(al_install_keyboard(), "keyboard");
-
-  timer = al_create_timer(1.0 / FRAMERATE);
-  inicia_allegro(timer, "timer");
-
-  queue = al_create_event_queue();
-  inicia_allegro(queue, "queue");
+   
 
 
-  objetos_mapa = iniciaObjetos(sheet);
-  mapa = iniciaMapa(PATH_MAP_1, objetos_mapa);
+    /* font loading */
+  score_text = al_load_font("resources/font/BoulderDash6128.ttf", 27, 0);
+  pause_text = al_load_font("resources/font/BoulderDash6128.ttf", 50, 0);
 
-  al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-  al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
-  al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
+    /* event queue for event handling and timers init. */
+    event_queue = al_create_event_queue();
 
-  disp = al_create_display(WIDTH, HEIGHT);
-  inicia_allegro(disp, "display");
+    /* created the big picture */
+    display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-  //Inicia fontes
-  inicia_allegro(al_init_font_addon(), "fonte");
-  inicia_allegro(al_init_ttf_addon(), "fonte");
-  font = al_create_builtin_font();
-  font = al_load_ttf_font("resources/fonts/BoulderDash6128.ttf", 25, 0);
-  inicia_allegro(font, "font");
-  inicia_allegro(al_init_primitives_addon(), "primitives");
-  al_register_event_source(queue, al_get_keyboard_event_source());
-  al_register_event_source(queue, al_get_display_event_source(disp));
-  al_register_event_source(queue, al_get_timer_event_source(timer));
+    /* adding inputs, timers and outputs to event queue to handle them later */
+    al_register_event_source(event_queue, al_get_keyboard_event_source());
+    al_register_event_source(event_queue, al_get_display_event_source(display));
+    al_register_event_source(event_queue, al_get_timer_event_source(miner_timer));
+    al_register_event_source(event_queue, al_get_timer_event_source(rock_timer));
+    al_register_event_source(event_queue, al_get_timer_event_source(spider_timer));
+    al_register_event_source(event_queue, al_get_timer_event_source(water_timer));
+    al_register_event_source(event_queue, al_get_timer_event_source(level_timer));
+
+    /* cleared the screen before we start */
+    al_clear_to_color(al_map_rgb(0,0,0));
+    al_flip_display();
 
   state = JOGANDO;
 }
@@ -107,7 +108,7 @@ void state_play(){
 //Função de desenho principal
 void draw(bool redraw, long frames){
   drawHeader();
-  desenhaMapa(mapa, objetos_mapa, frames);
+  desenhaMapa(mapa, ROWS,COLS,texture);
   al_flip_display();
   redraw = false;
 }

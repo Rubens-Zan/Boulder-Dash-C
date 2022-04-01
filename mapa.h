@@ -20,6 +20,9 @@
 #define EXPLOSAO3 9
 #define SAIDA     10
 
+#define ROWS 22
+#define COLS 40
+
 struct rock{
   int x, y;
   int caindo;
@@ -42,7 +45,7 @@ struct objetos{
 };
 typedef struct objetos objetos;
 
-void desenhaMapa(int** mapa, objetos* objetos_mapa, long frames);
+void desenhaMapa(int **map, int lin, int col, ALLEGRO_BITMAP *texture[10]); 
 int** iniciaMapa(char* nome_mapa, objetos* obj);
 void iniciaPedrasEDiamantes(int** mapa, objetos* obj);
 objetos* iniciaObjetos(ALLEGRO_BITMAP* sheet);

@@ -31,6 +31,7 @@ void state_end();
 void state_close();
 
 void inicia_allegro(bool teste, char *descricao);
+
 void draw(bool redraw, long frames);
 void drawHeader();
 void draw_instructions();

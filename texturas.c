@@ -3,6 +3,7 @@
 #include "game.h"
 #include "mapa.h"
 #include "texturas.h"
+#include "objetos.h"
 
 void iniciaSpritesObjetos(ALLEGRO_BITMAP* sheet, objetos* obj){
   obj->metal = al_create_sub_bitmap(sheet, 0, 48, 15, 16);
@@ -27,18 +28,35 @@ void iniciaSpritesObjetos(ALLEGRO_BITMAP* sheet, objetos* obj){
   obj->diamante[5] = al_create_sub_bitmap(sheet, 16, 96, 15, 16);
   obj->diamante[7] = al_create_sub_bitmap(sheet, 16, 112, 15, 16);
 }
+#define SCREEN_WIDTH 1200
+#define SCREEN_HEIGHT 680
 
-#define METAL     0
-#define TERRA     1
-#define MURO      2
-#define PEDRA     3
-#define DIAMANTE  4
-#define VAZIO     5
-#define PLAYER    6
-#define EXPLOSAO  7
-#define EXPLOSAO2 8
-#define EXPLOSAO3 9
-#define SAIDA     10
+// #define METAL     0
+// #define TERRA     1
+// #define MURO      2
+// #define PEDRA     3
+// #define DIAMANTE  4
+// #define VAZIO     5
+// #define PLAYER    6
+// #define EXPLOSAO  7
+// #define EXPLOSAO2 8
+// #define EXPLOSAO3 9
+// #define SAIDA     10
+
+void carregarTexturas(ALLEGRO_BITMAP *texture[10]){
+    /* graphics */
+  texture[VAZIO] = load_bitmap_at_size("resources/img/Empty.png",SCREEN_WIDTH, SCREEN_HEIGHT);
+  texture[TERRA] = load_bitmap_at_size("resources/img/Earth.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+  texture[PLAYER] = load_bitmap_at_size("resources/img/Miner.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+  texture[PEDRA] = load_bitmap_at_size("resources/img/Rock.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+  texture[MURO] = load_bitmap_at_size("resources/img/Border.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+  texture[DIAMANTE] = load_bitmap_at_size("resources/img/Diamond.png", SCREEN_WIDTH,SCREEN_HEIGHT);
+  // texture[SPIDER] = load_bitmap_at_size("resources/img/Spider.png", SIZE_OBJS, SIZE_OBJS);
+  // texture[MONSTER] = load_bitmap_at_size("resources/img/Monster.png", SIZE_OBJS, SIZE_OBJS);
+  // texture[WATER] = load_bitmap_at_size("resources/img/Water.jpg", SIZE_OBJS, SIZE_OBJS);
+  texture[SAIDA] = load_bitmap_at_size("resources/img/Door.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+}
+
 
 ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h){
   ALLEGRO_BITMAP *resized_bmp, *loaded_bmp, *prev_target;
