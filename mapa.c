@@ -24,13 +24,11 @@
 
 
 
-int **iniciaMapa(char *pathMapa, objetos *obj)
-{
+int **iniciaMapa(char *pathMapa, objetos *obj){
   FILE *arq;
   int **mapa, i, j, lin, col;
   arq = fopen(pathMapa, "r");
-  if (!arq)
-  {
+  if (!arq){
     fprintf(stderr, "Erro ao abrir mapa!\n");
     exit(1);
   }
@@ -44,18 +42,17 @@ int **iniciaMapa(char *pathMapa, objetos *obj)
 
   int qtPedras = 0, qtDiamantes = 0;
   for (i = 0; i < lin; i++)
-    for (j = 0; j < col; j++)
-    {
+    for (j = 0; j < col; j++){
       fscanf(arq, "%d", &mapa[i][j]);
       if (mapa[i][j] == PEDRA)
         qtPedras++;
       if (mapa[i][j] == DIAMANTE)
         qtDiamantes++;
     }
-  obj->qtPedras = qtPedras;
-  obj->qtDiamantes = qtDiamantes;
-  obj->rock = malloc(qtPedras * sizeof(rock));
-  obj->diamond = malloc(qtDiamantes * sizeof(rock));
+  // obj->qtPedras = qtPedras;
+  // obj->qtDiamantes = qtDiamantes;
+  // obj->rock = malloc(qtPedras * sizeof(rock));
+  // obj->diamond = malloc(qtDiamantes * sizeof(rock));
   
   fclose(arq);
   return mapa;
@@ -63,11 +60,14 @@ int **iniciaMapa(char *pathMapa, objetos *obj)
 
 // Funcao principal para desenhar o mapa
 // carrega as texturas inicial para nao gastar processamento
-void desenhaMapa(int **map, int lin, int col, ALLEGRO_BITMAP *texture[10])
-{
+void desenhaMapa(int **map, int lin, int col, ALLEGRO_BITMAP *texture[10]){
+
   for (int i = 0; i < lin; i++)
-    for (int j = 0; j < col; j++)
-      al_draw_bitmap(texture[map[i][j]], j * SIZE_OBJS, i * SIZE_OBJS, 0);
+    for (int j = 0; j < col; j++){
+  	  	  al_draw_scaled_bitmap(texture[map[i][j]], 0, 0, 15, 16, j, i, SIZE_OBJS, SIZE_OBJS, 0);
+      // al_draw_scaled_bitmap(texture[map[i][j]], j * SIZE_OBJS, i * SIZE_OBJS, 0);
+    }
+
 }
 
 void destroi_mapa(int **mapa)
