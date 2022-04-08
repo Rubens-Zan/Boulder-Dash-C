@@ -23,13 +23,12 @@
 #define ROWS 22
 #define COLS 40
 
-struct rock{
+typedef struct{
   int x, y;
   int caindo;
-};
-typedef struct rock rock;
+} rock;
 
-struct tObjetos{
+typedef struct{
   rock *rock;
   rock *diamond;
   ALLEGRO_BITMAP* terra;
@@ -42,22 +41,21 @@ struct tObjetos{
   ALLEGRO_BITMAP* explosao[4];
   int qtPedras, qtDiamantes;
   int animacao;
-};
-typedef struct tObjetos tObjetos;
+}tObjetos;
 
-struct infoMapa
-{
-    char code[8];
-    // Flags de movimento
-    bool keys[4];
-    int pontuacao;
-    int vidas; 
-    int diamantes;
-};
-typedef struct infoMapa infoMapa;
+typedef struct{
+  int lin,col; 
+  char code[8];
+  // Flags de movimento
+  bool keys[4];
+  int pontuacao;
+  int vidas; 
+  int diamantes;
+} infoMapa;
 
+// FUNCOES
 tObjetos* iniciaObjetos(ALLEGRO_BITMAP* sheet); 
-void draw_map(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin);
+void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin);
 int** iniciaMapa(char* nome_mapa, tObjetos* obj);
 
 #endif

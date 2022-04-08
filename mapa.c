@@ -70,11 +70,11 @@ tObjetos* iniciaObjetos(ALLEGRO_BITMAP* sheet){
     fprintf(stderr, "Erro ao alocar memória!\n");
     exit(1);
   }
-  inicia_sprites_objetos(sheet, obj);
+  iniciaSpritesObjetos(sheet, obj);
   obj->animacao = 0;
 }
 
-void draw_map(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
+void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
   int i, j, i_aux, j_aux;
   for(i = 0;i < col;i++){
   	for(j = 0;j < lin;j++){
@@ -127,14 +127,12 @@ void draw_map(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
   } 
 }
 
-void destroi_mapa(int **mapa)
-{
+void destroi_mapa(int **mapa){
   free(mapa[0]);
   free(mapa);
 }
 
-void destroi_objetos(tObjetos *obj)
-{
+void destroi_objetos(tObjetos *obj){
   free(obj->pedra);
   free(obj->diamante);
   free(obj);

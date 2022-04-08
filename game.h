@@ -21,35 +21,51 @@
 #define SIZE_ARQ_PONTOS 5
 #define PATH_SPRITESHEET "resources/img/spritesheet.png"
 
-typedef struct tPlayer
-{
+
+
+typedef struct tPlayer{
     // Sprites animadas
-    ALLEGRO_BITMAP *animParado[7];
-    ALLEGRO_BITMAP *animEsq[7];
-    ALLEGRO_BITMAP *animDir[7];
+    ALLEGRO_BITMAP *animacaoParado[7];
+    ALLEGRO_BITMAP *animacaoEsq[7];
+    ALLEGRO_BITMAP *animacaoDir[7];
     // Ciclos de animação (percorre vetor de sprites)
-    int animarParado, animarEsq, animarDir;
+    int animParadoAtual, animEsqAtual, animDirAtual;
     int tired;
     int vivo;
-    int pos_x, pos_y;
-    int vel_x, vel_y;
+    int posX, posY;
+    int velX, velY;
 } tPlayer;
 
-typedef struct{
-    float speed;
-    bool alive;
-    unsigned int diamond, score, life;
-}Miner;
-
-typedef struct{
+typedef struct objetoEstatico{
     bool is_falling, alive;
-}FallingObject;
+}objetoEstatico;
 
 
-typedef struct{
+typedef struct objetoMovel{
     float speed;
     bool alive;
-}MovingObject;
+}objetoMovel;
+
+// TODO ADICIONAR AS VARIAVEIS GLOBAIS TUDO AQ
+typedef struct tNivel{
+    ALLEGRO_TIMER *timer;
+    ALLEGRO_EVENT event;
+    ALLEGRO_EVENT_QUEUE *queue;
+    ALLEGRO_DISPLAY *disp;
+    ALLEGRO_FONT *font;
+    ALLEGRO_BITMAP *sheet;
+
+    tPlayer *jogador;
+    tObjetos *objetos_mapa;
+    unsigned char keys[ALLEGRO_KEY_MAX];
+
+    // audio *sons_jogo;
+    // pontos *pontos_totais;
+
+    int **mapa, relogio;
+    long frames;
+    unsigned char key[ALLEGRO_KEY_MAX];
+}tNivel; 
 
 enum
 {
@@ -68,9 +84,9 @@ void state_close();
 
 
 void draw(bool redraw, long frames);
-void draw_player(tPlayer *jogador, int** mapa, tObjetos *obj, long frames); 
-void draw_instructions(); 
+void drawPlayer(tPlayer *jogador, int** mapa, tObjetos *obj, long frames); 
+void drawInstructions(); 
 void drawHeader();
-void draw_instructions();
-void draw_inicial_menu();
+void drawInstructions();
+void drawInicialMenu();
 #endif
