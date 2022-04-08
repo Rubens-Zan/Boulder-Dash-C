@@ -22,9 +22,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define M_FPS 10.0
+#define R_FPS 6.0
+#define S_FPS 3.0
+#define SCREEN_WIDTH 1366
+#define SCREEN_HEIGHT 768
+#define SIZE 40.0
 
-
-int **iniciaMapa(char *pathMapa, objetos *obj){
+int **iniciaMapa(char *pathMapa, tObjetos *obj){
   FILE *arq;
   int **mapa, i, j, lin, col;
   arq = fopen(pathMapa, "r");
@@ -49,25 +54,77 @@ int **iniciaMapa(char *pathMapa, objetos *obj){
       if (mapa[i][j] == DIAMANTE)
         qtDiamantes++;
     }
-  // obj->qtPedras = qtPedras;
-  // obj->qtDiamantes = qtDiamantes;
-  // obj->rock = malloc(qtPedras * sizeof(rock));
-  // obj->diamond = malloc(qtDiamantes * sizeof(rock));
+  obj->qtPedras = qtPedras;
+  obj->qtDiamantes = qtDiamantes;
+  obj->rock = malloc(qtPedras * sizeof(rock));
+  obj->diamond = malloc(qtDiamantes * sizeof(rock));
   
   fclose(arq);
   return mapa;
 }
 
-// Funcao principal para desenhar o mapa
-// carrega as texturas inicial para nao gastar processamento
-void desenhaMapa(int **map, int lin, int col, ALLEGRO_BITMAP *texture[10]){
+tObjetos* iniciaObjetos(ALLEGRO_BITMAP* sheet){
+  tObjetos *obj;
+  obj = malloc(sizeof(tObjetos));
+  if(obj == NULL){
+    fprintf(stderr, "Erro ao alocar memória!\n");
+    exit(1);
+  }
+  inicia_sprites_objetos(sheet, obj);
+  obj->animacao = 0;
+}
 
-  for (int i = 0; i < lin; i++)
-    for (int j = 0; j < col; j++){
-  	  	  al_draw_scaled_bitmap(texture[map[i][j]], 0, 0, 15, 16, j, i, SIZE_OBJS, SIZE_OBJS, 0);
-      // al_draw_scaled_bitmap(texture[map[i][j]], j * SIZE_OBJS, i * SIZE_OBJS, 0);
-    }
-
+void draw_map(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
+  int i, j, i_aux, j_aux;
+  for(i = 0;i < col;i++){
+  	for(j = 0;j < lin;j++){
+  	  i_aux = i * SIZE_OBJS;
+  	  j_aux = j * SIZE_OBJS;
+  	  switch(mapa[i][j]){
+  	  	case METAL:
+  	  	  al_draw_scaled_bitmap(objetosMapa->metal, 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+  	  	  break;
+  	  	case TERRA:
+  	  	  al_draw_scaled_bitmap(objetosMapa->terra, 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+  	  	  break;
+  	  	case MURO:
+  	  	  al_draw_scaled_bitmap(objetosMapa->muro, 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+  	  	  break;
+        case PEDRA:
+          al_draw_scaled_bitmap(objetosMapa->pedra, 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case VAZIO:
+          al_draw_scaled_bitmap(objetosMapa->vazio, 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case SAIDA:
+          al_draw_scaled_bitmap(objetosMapa->saida, 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case DIAMANTE:
+          //Reseta frames do diamante se necessário e faz animação
+          if(objetosMapa->animacao == 7)
+          	objetosMapa->animacao = 0;
+          if(frames % 30 == 0)
+            objetosMapa->animacao++;
+          al_draw_scaled_bitmap(objetosMapa->diamante[objetosMapa->animacao], 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case EXPLOSAO:
+          al_draw_scaled_bitmap(objetosMapa->explosao[1], 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          if(frames % 15 == 0)
+            mapa[i][j] = EXPLOSAO2;
+          break;
+        case EXPLOSAO2:
+          al_draw_scaled_bitmap(objetosMapa->explosao[2], 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          if(frames % 15 == 0)
+            mapa[i][j] = EXPLOSAO3;
+          break;
+        case EXPLOSAO3:
+          al_draw_scaled_bitmap(objetosMapa->explosao[3], 0, 0, 15, 16, j_aux, i_aux + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          if(frames % 15 == 0)
+            mapa[i][j] = VAZIO;
+          break;
+  	  }
+  	}
+  } 
 }
 
 void destroi_mapa(int **mapa)
@@ -76,7 +133,7 @@ void destroi_mapa(int **mapa)
   free(mapa);
 }
 
-void destroi_objetos(objetos *obj)
+void destroi_objetos(tObjetos *obj)
 {
   free(obj->pedra);
   free(obj->diamante);

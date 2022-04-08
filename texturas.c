@@ -3,11 +3,30 @@
 #include "game.h"
 #include "mapa.h"
 #include "texturas.h"
-#include "objetos.h"
 
-void iniciaSpritesObjetos(ALLEGRO_BITMAP* sheet, objetos* obj){
+tPlayer* inicia_jogador(ALLEGRO_BITMAP* sheet){
+  tPlayer *jogador;
+  jogador = malloc(sizeof(tPlayer));
+  if(jogador == NULL){
+  	printf("Erro ao alocar memoria!\n");
+  	exit(1);
+  }
+  jogador->pos_x = SPAWN_X;
+  jogador->pos_y = SPAWN_Y;
+  jogador->vel_x = SIZE_OBJS;
+  jogador->vel_y = SIZE_OBJS;
+  jogador->animarParado = 0;
+  jogador->animarEsq = 0;
+  jogador->animarDir = 0;
+  jogador->tired = 0;
+  jogador->vivo = 1;
+  inicia_sprites_jogador(sheet, jogador);
+  return jogador;
+}
+
+
+void inicia_sprites_objetos(ALLEGRO_BITMAP* sheet, tObjetos* obj){
   obj->metal = al_create_sub_bitmap(sheet, 0, 48, 15, 16);
-  
   obj->saida = al_create_sub_bitmap(sheet, 16, 48, 15, 16);
   obj->muro  = al_create_sub_bitmap(sheet, 32, 48, 15, 16);
   obj->terra = al_create_sub_bitmap(sheet, 48, 48, 15, 16);
@@ -28,90 +47,22 @@ void iniciaSpritesObjetos(ALLEGRO_BITMAP* sheet, objetos* obj){
   obj->diamante[5] = al_create_sub_bitmap(sheet, 16, 96, 15, 16);
   obj->diamante[7] = al_create_sub_bitmap(sheet, 16, 112, 15, 16);
 }
-#define SCREEN_WIDTH 1200
-#define SCREEN_HEIGHT 680
 
-// #define METAL     0
-// #define TERRA     1
-// #define MURO      2
-// #define PEDRA     3
-// #define DIAMANTE  4
-// #define VAZIO     5
-// #define PLAYER    6
-// #define EXPLOSAO  7
-// #define EXPLOSAO2 8
-// #define EXPLOSAO3 9
-// #define SAIDA     10
+void inicia_sprites_jogador(ALLEGRO_BITMAP* sheet, tPlayer* jogador){
+  jogador->animParado[0] = al_create_sub_bitmap(sheet, 0, 0, 15, 16);
+  for(int i = 1;i <= 6;i++)
+    jogador->animParado[i] = al_create_sub_bitmap(sheet, (16 * i), 0, 15, 16);	
 
-void carregarTexturas(ALLEGRO_BITMAP *texture[10]){
-    /* graphics */
-  texture[VAZIO] = load_bitmap_at_size("resources/img/Empty.png",SCREEN_WIDTH, SCREEN_HEIGHT);
-  texture[TERRA] = load_bitmap_at_size("resources/img/Earth.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-  texture[PLAYER] = load_bitmap_at_size("resources/img/Miner.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-  texture[PEDRA] = load_bitmap_at_size("resources/img/Rock.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-  texture[MURO] = load_bitmap_at_size("resources/img/Border.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-  texture[DIAMANTE] = load_bitmap_at_size("resources/img/Diamond.png", SCREEN_WIDTH,SCREEN_HEIGHT);
-  // texture[SPIDER] = load_bitmap_at_size("resources/img/Spider.png", SIZE_OBJS, SIZE_OBJS);
-  // texture[MONSTER] = load_bitmap_at_size("resources/img/Monster.png", SIZE_OBJS, SIZE_OBJS);
-  // texture[WATER] = load_bitmap_at_size("resources/img/Water.jpg", SIZE_OBJS, SIZE_OBJS);
-  texture[SAIDA] = load_bitmap_at_size("resources/img/Door.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+  jogador->animEsq[0] = al_create_sub_bitmap(sheet, 0, 16, 15, 16);
+  for(int i = 1;i <= 6;i++)
+    jogador->animEsq[i] = al_create_sub_bitmap(sheet, (16 * i), 16, 15, 16);	
+
+  jogador->animDir[0] = al_create_sub_bitmap(sheet, 0, 32, 15, 16);
+  for(int i = 1;i <= 6;i++)
+    jogador->animDir[i] = al_create_sub_bitmap(sheet, (16 * i), 32, 15, 16);
 }
 
-
-ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h){
-  ALLEGRO_BITMAP *resized_bmp, *loaded_bmp, *prev_target;
-
-  // 1. create a temporary bitmap of size we want
-  resized_bmp = al_create_bitmap(w, h);
-  if (!resized_bmp) return NULL;
-
-  // 2. load the bitmap at the original size
-  loaded_bmp = al_load_bitmap(filename);
-  if (!loaded_bmp)
-  {
-     al_destroy_bitmap(resized_bmp);
-     return NULL;
-  }
-
-  // 3. set the target bitmap to the resized bmp
-  prev_target = al_get_target_bitmap();
-  al_set_target_bitmap(resized_bmp);
-
-  // 4. copy the loaded bitmap to the resized bmp
-  al_draw_scaled_bitmap(loaded_bmp,
-     0, 0,                                // source origin
-     al_get_bitmap_width(loaded_bmp),     // source width
-     al_get_bitmap_height(loaded_bmp),    // source height
-     0, 0,                                // target origin
-     w, h,                                // target dimensions
-     0                                    // flags
-  );
-
-  // 5. restore the previous target and clean up
-  al_set_target_bitmap(prev_target);
-  al_destroy_bitmap(loaded_bmp);
-
-  return resized_bmp;
-}
-
-
-
-ALLEGRO_BITMAP * inicializaTexturas(int level){
-   /* graphics */
-    ALLEGRO_BITMAP *texturas[10];
-    texturas[VAZIO] = load_bitmap_at_size("resources/img/Empty.png",SIZE_OBJS, SIZE_OBJS);
-    texturas[TERRA] = load_bitmap_at_size("resources/img/Earth.png", SIZE_OBJS, SIZE_OBJS);
-    texturas[PLAYER] = load_bitmap_at_size("resources/img/Miner.png", SIZE_OBJS, SIZE_OBJS);
-    texturas[PEDRA] = load_bitmap_at_size("resources/img/Rock.png", SIZE_OBJS, SIZE_OBJS);
-    texturas[MURO] = load_bitmap_at_size("resources/img/Border.png", SIZE_OBJS, SIZE_OBJS);
-    texturas[DIAMANTE] = load_bitmap_at_size("resources/img/Diamond.png", SIZE_OBJS,SIZE_OBJS);
-    texturas[SAIDA] = load_bitmap_at_size("resources/img/Door.png", SIZE_OBJS, SIZE_OBJS);
-    // return (*texturas); 
-    // texturas_menu = load_bitmap_at_size("texturass/front.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-    // texturas_icon_diamond = load_bitmap_at_size("texturass/Diamond.png", 3*SIZE_OBJ/5, 3*SIZE_OBJ/5);
-}
-
-void destroiSpritesObjetos(objetos* obj){
+void destroi_sprites_objetos(tObjetos* obj){
   al_destroy_bitmap(obj->metal);
   al_destroy_bitmap(obj->saida);
   al_destroy_bitmap(obj->muro);
@@ -124,4 +75,15 @@ void destroiSpritesObjetos(objetos* obj){
 
   for(int i = 0;i < 8;i++)
     al_destroy_bitmap(obj->diamante[i]);
+}
+
+void destroi_sprites_player(tPlayer* jogador){
+  for(int i = 0;i < 7;i++)
+    al_destroy_bitmap(jogador->animParado[i]);
+
+  for(int i = 0;i < 7;i++)
+    al_destroy_bitmap(jogador->animEsq[i]);
+
+  for(int i = 0;i < 7;i++)
+    al_destroy_bitmap(jogador->animDir[i]);
 }
