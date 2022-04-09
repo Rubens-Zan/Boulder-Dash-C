@@ -64,7 +64,6 @@ typedef struct tNivel{
 
     int **mapa, relogio;
     long frames;
-    unsigned char key[ALLEGRO_KEY_MAX];
 }tNivel; 
 
 enum
@@ -82,7 +81,9 @@ void state_play();
 void state_end();
 void state_close();
 
+void verificaEntrada(unsigned char *keys, bool *done, bool redraw,tPlayer *jogador); 
 
+// FUNCOES DE DESENHO 
 void draw(bool redraw, long frames);
 void drawPlayer(tPlayer *jogador, int** mapa, tObjetos *obj, long frames); 
 void drawInstructions(); 

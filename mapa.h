@@ -47,7 +47,7 @@ typedef struct{
   int lin,col; 
   char code[8];
   // Flags de movimento
-  bool keys[4];
+  bool moveKeys[4];
   int pontuacao;
   int vidas; 
   int diamantes;
