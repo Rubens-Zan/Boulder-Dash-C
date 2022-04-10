@@ -13,11 +13,8 @@ tPlayer* inicia_jogador(ALLEGRO_BITMAP* sheet){
   }
   jogador->posX = SPAWN_X;
   jogador->posY = SPAWN_Y;
-  jogador->velX = SIZE_OBJS;
-  jogador->velY = SIZE_OBJS;
-  jogador->animParadoAtual = 0;
-  jogador->animEsqAtual = 0;
-  jogador->animDirAtual = 0;
+  jogador->vel = SIZE_OBJS;
+  jogador->animacaoAtual=0;
   jogador->tired = 0;
   jogador->vivo = 1;
   iniciaSpritesJogador(sheet, jogador);

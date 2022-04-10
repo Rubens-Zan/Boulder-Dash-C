@@ -22,18 +22,36 @@
 #define PATH_SPRITESHEET "resources/img/spritesheet.png"
 
 
+enum
+{
+    INICIO,
+    SERVINDO,
+    JOGANDO,
+    FIMPART,
+    FIMJOGO
+} state;
+
+enum
+{
+    STOP, 
+    UP,
+    LEFT,
+    BOTTOM,
+    RIGHT
+} direcao;
+
 
 typedef struct tPlayer{
     // Sprites animadas
     ALLEGRO_BITMAP *animacaoParado[7];
     ALLEGRO_BITMAP *animacaoEsq[7];
     ALLEGRO_BITMAP *animacaoDir[7];
-    // Ciclos de animação (percorre vetor de sprites)
-    int animParadoAtual, animEsqAtual, animDirAtual;
+    int direction; 
+    int animacaoAtual;
     int tired;
     int vivo;
     int posX, posY;
-    int velX, velY;
+    int vel;
 } tPlayer;
 
 typedef struct objetoEstatico{
@@ -54,7 +72,6 @@ typedef struct tNivel{
     ALLEGRO_DISPLAY *disp;
     ALLEGRO_FONT *font;
     ALLEGRO_BITMAP *sheet;
-
     tPlayer *jogador;
     tObjetos *objetos_mapa;
     unsigned char keys[ALLEGRO_KEY_MAX];
@@ -66,25 +83,19 @@ typedef struct tNivel{
     long frames;
 }tNivel; 
 
-enum
-{
-    INICIO,
-    SERVINDO,
-    JOGANDO,
-    FIMPART,
-    FIMJOGO
-} state;
 
-void state_init();
-void state_serve();
-void state_play();
-void state_end();
-void state_close();
 
-void verificaEntrada(unsigned char *keys, bool *done, bool redraw,tPlayer *jogador); 
+void state_init(tNivel *infoNivel);
+void state_serve(tNivel *infoNivel);
+void state_play(tNivel *infoNivel);
+void state_end(tNivel *infoNivel);
+void state_close(tNivel *infoNivel);
+
+void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames);
+void atualiza_player(tPlayer *jogador, int andou); 
 
 // FUNCOES DE DESENHO 
-void draw(bool redraw, long frames);
+void draw(bool redraw, long frames,tNivel *infoNivel);
 void drawPlayer(tPlayer *jogador, int** mapa, tObjetos *obj, long frames); 
 void drawInstructions(); 
 void drawHeader();
