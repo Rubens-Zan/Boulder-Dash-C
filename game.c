@@ -74,8 +74,7 @@ void inicializarAllegro(tNivel *infoNivel){
   al_register_event_source(queue, al_get_timer_event_source(timer));
 }
 
-void state_init(tNivel *infoNivel)
-{
+void state_init(tNivel *infoNivel){
 
   inicializarAllegro(infoNivel);
   infoNivel->jogador = inicia_jogador(infoNivel->sheet);
@@ -86,8 +85,7 @@ void state_init(tNivel *infoNivel)
   // state = SERVINDO;
 }
 
-void state_serve(tNivel *infoNivel)
-{
+void state_serve(tNivel *infoNivel){
   bool done = false;
   al_flush_event_queue(queue);
   while (1)
@@ -140,6 +138,8 @@ void state_play(tNivel *infoNivel){
     switch (event.type){
     case ALLEGRO_EVENT_TIMER:
       verificaEntrada(keys, &done, redraw, infoNivel->jogador, frames);
+      // int ok = verificaPedras(infoNivel->mapa,infoNivel->jogador, infoNivel->jogador->direction);
+      // verificaDiamantes();
       if (frames % 60 == 0 && infoNivel->jogador->vivo && infoNivel->relogio > 0)
         infoNivel->relogio--;
       break;
@@ -170,7 +170,36 @@ void state_play(tNivel *infoNivel){
   }
 }
 
-void atualiza_player(tPlayer *jogador, int andou){
+int verificaPedras(int **mapa, tPlayer *jogador, int direcao){
+  int newPosX, newPosY;
+
+  if(direcao == UP){
+    newPosY = jogador->posY - jogador->vel;
+  }
+  if(direcao == BOTTOM){
+    newPosY = jogador->posY + jogador->vel;
+
+  }
+  if(direcao == LEFT){
+    newPosX = jogador->posX - jogador->vel;
+
+  }
+  if(direcao == RIGHT){
+    newPosX = jogador->posX + jogador->vel;
+  }
+
+  if (mapa[newPosX][newPosY] == PEDRA){
+    printf("pedra acima");
+
+    return 2;
+  }
+
+} 
+
+
+
+void atualizaPlayer(tPlayer *jogador, int andou){
+  // DECREMENTO/INCREMENTO EM RELACAO A VELOCIDADE 
   if(jogador->direction == UP){
     jogador->posY -= jogador->vel;
     jogador->tired = 0;
@@ -193,11 +222,11 @@ void atualiza_player(tPlayer *jogador, int andou){
 
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames){
   int oldDirection = jogador->direction; 
-
+  // VERIFICA A DIRECAO E 
+  // VERIFICA SE NAO ESTA NAS BORDAS
   if (keys[ALLEGRO_KEY_UP] || keys[ALLEGRO_KEY_W]){
     if ((jogador->posY - SIZE_OBJS - MARGIN_TOP) > 0){
       jogador->direction = UP;
-
       jogador->tired++;
     }
   }
@@ -249,10 +278,10 @@ void draw(bool redraw, long frames, tNivel *infoNivel){
 }
 
 void drawPlayer(tPlayer *jogador, int **mapa, tObjetos *obj, long frames){
+  atualizaPlayer(jogador,1);
   switch (jogador->direction){
   case UP:
     al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
-
     break;
   case BOTTOM:
     al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
@@ -268,12 +297,10 @@ void drawPlayer(tPlayer *jogador, int **mapa, tObjetos *obj, long frames){
     al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
     break; 
   }
-  atualiza_player(jogador,1);
   
 }
 
-void drawEndGame(tNivel *infoNivel)
-{
+void drawEndGame(tNivel *infoNivel){
   al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0, 0.9));
   al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), WIDTH / 4 + 7 * SIZE_OBJS, 20 + 2 * SIZE_OBJS, 0, "F I M D E J O G O");
   // al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), WIDTH/4 + 7 * SIZE_OBJS, 100 + 2 * SIZE_OBJS, 0, "PONTUACAO: %d",jogador->pontuacao);
@@ -284,9 +311,7 @@ void drawEndGame(tNivel *infoNivel)
   al_flip_display();
 }
 
-// ARRUMAR TAMANHO DISSO
-void drawInstructions(tNivel *infoNivel)
-{
+void drawInstructions(tNivel *infoNivel){
   al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0, 0.9));
   al_draw_textf(infoNivel->font, al_map_rgb(120, 120, 255), WIDTH / 4 + 7 * SIZE_OBJS, 20 + 2 * SIZE_OBJS, 0, "INSTRUCOES");
   al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), 120, 80 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "Colete todos os diamantes e chegue na saida");
@@ -300,9 +325,7 @@ void drawInstructions(tNivel *infoNivel)
   al_flip_display();
 }
 
-// TODO AJUSTAR ALINHAMENTO
-void drawHeader(tNivel *infoNivel)
-{
+void drawHeader(tNivel *infoNivel){
   int vidas = 7;
 
   al_clear_to_color(al_map_rgb(0, 0, 0));

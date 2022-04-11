@@ -13,7 +13,7 @@ tPlayer* inicia_jogador(ALLEGRO_BITMAP* sheet){
   }
   jogador->posX = SPAWN_X;
   jogador->posY = SPAWN_Y;
-  jogador->vel = SIZE_OBJS;
+  jogador->vel = SIZE_OBJS/4;
   jogador->animacaoAtual=0;
   jogador->tired = 0;
   jogador->vivo = 1;

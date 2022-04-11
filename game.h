@@ -92,7 +92,9 @@ void state_end(tNivel *infoNivel);
 void state_close(tNivel *infoNivel);
 
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames);
-void atualiza_player(tPlayer *jogador, int andou); 
+void atualizaPlayer(tPlayer *jogador, int andou); 
+
+int verificaPedras(int **mapa, tPlayer *jogador, int direcao);
 
 // FUNCOES DE DESENHO 
 void draw(bool redraw, long frames,tNivel *infoNivel);
