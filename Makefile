@@ -9,7 +9,8 @@ ALLEGRO = $$(pkg-config --libs allegro-5 allegro_font-5 allegro_ttf-5 allegro_pr
 CFLAG = -Wall
 MODULOS = game \
 	mapa \
-	texturas
+	texturas \
+	desenhar
  
 OBJETOS = main.o $(addsuffix .o,$(MODULOS))
 

@@ -93,14 +93,7 @@ void state_close(tNivel *infoNivel);
 
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames);
 void atualizaPlayer(tPlayer *jogador, int andou); 
+void verificaPedras(int **mapa, tPlayer *jogador, int direcao);
 
-int verificaPedras(int **mapa, tPlayer *jogador, int direcao);
 
-// FUNCOES DE DESENHO 
-void draw(bool redraw, long frames,tNivel *infoNivel);
-void drawPlayer(tPlayer *jogador, int** mapa, tObjetos *obj, long frames); 
-void drawInstructions(); 
-void drawHeader();
-void drawInstructions();
-void drawInicialMenu();
 #endif
