@@ -46,10 +46,12 @@ typedef struct tPlayer{
     ALLEGRO_BITMAP *animacaoParado[7];
     ALLEGRO_BITMAP *animacaoEsq[7];
     ALLEGRO_BITMAP *animacaoDir[7];
+    int pontuacao;
+    int diamantes; 
     int direction; 
     int animacaoAtual;
     int tired;
-    int vivo;
+    int vivo,vidas;
     int posX, posY;
     int vel;
 } tPlayer;
@@ -73,7 +75,7 @@ typedef struct tNivel{
     ALLEGRO_FONT *font;
     ALLEGRO_BITMAP *sheet;
     tPlayer *jogador;
-    tObjetos *objetos_mapa;
+    tObjetos *objetosMapa;
     unsigned char keys[ALLEGRO_KEY_MAX];
 
     // audio *sons_jogo;
@@ -85,15 +87,24 @@ typedef struct tNivel{
 
 
 
+
+
+
 void state_init(tNivel *infoNivel);
 void state_serve(tNivel *infoNivel);
 void state_play(tNivel *infoNivel);
 void state_end(tNivel *infoNivel);
 void state_close(tNivel *infoNivel);
+void coletaDiamante(tPlayer *jogador,tObjetos *objetos,int **mapa); 
+
+int testaObjetosCaminho(tPlayer *jogador,int **mapa,tObjetos *objetos,int y,int x,int vertical,int horizontal);
+int testaMapa(int **mapa,tPlayer *jogador,tObjetos *objetos,long frames);
+void criaSaida(int **mapa); 
 
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames);
-void atualizaPlayer(tPlayer *jogador, int andou); 
-void verificaPedras(int **mapa, tPlayer *jogador, int direcao);
+void atualizaPlayer(tPlayer *jogador); 
+void verificaPedras(int **mapa, tPlayer *jogador, int direcao,tObjetos *objetos, long frames);
+void mataPlayer(tPlayer *jogador,int x,int y, int **mapa);
 
 
 #endif

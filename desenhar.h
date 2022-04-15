@@ -13,7 +13,7 @@
 void draw(bool redraw, long frames,tNivel *infoNivel);
 void drawPlayer(tPlayer *jogador, int** mapa, tObjetos *obj, long frames); 
 void drawInstructions(); 
-void drawHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, ALLEGRO_BITMAP *diamanteTextura);
+void drawHeader(ALLEGRO_FONT *fonte, int relogio, int vidas,int pontuacao,int diamantesJogador,int diamantesTotal, ALLEGRO_BITMAP *diamanteTextura);
 void drawInicialMenu();
-
+void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin);
 #endif

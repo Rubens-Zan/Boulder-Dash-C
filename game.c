@@ -14,25 +14,24 @@ ALLEGRO_TIMER *timer;
 ALLEGRO_EVENT event;
 ALLEGRO_EVENT_QUEUE *queue;
 ALLEGRO_DISPLAY *disp;
-// ALLEGRO_FONT *font;
-// ALLEGRO_BITMAP *sheet;
 
 unsigned char keys[ALLEGRO_KEY_MAX];
 
 // audio *sons_jogo;
 // pontos *pontos_totais;
 
-// int **mapa, relogio = 150;
 long frames = 0;
 
-void testaAllegro(bool ok, char *descricao){
+void testaAllegro(bool ok, char *descricao)
+{
   if (ok)
     return;
   fprintf(stderr, "Não foi possivel inicializar %s\n", descricao);
   exit(1);
 }
 
-void inicializarAllegro(tNivel *infoNivel){
+void inicializarAllegro(tNivel *infoNivel)
+{
 
   testaAllegro(al_init(), "allegro");
   testaAllegro(al_install_keyboard(), "keyboard");
@@ -75,12 +74,13 @@ void inicializarAllegro(tNivel *infoNivel){
   al_register_event_source(queue, al_get_timer_event_source(timer));
 }
 
-void state_init(tNivel *infoNivel){
+void state_init(tNivel *infoNivel)
+{
 
   inicializarAllegro(infoNivel);
   infoNivel->jogador = inicia_jogador(infoNivel->sheet);
-  infoNivel->objetos_mapa = iniciaObjetos(infoNivel->sheet);
-  infoNivel->mapa = iniciaMapa(PATH_MAP_1, infoNivel->objetos_mapa);
+  infoNivel->objetosMapa = iniciaObjetos(infoNivel->sheet);
+  infoNivel->mapa = iniciaMapa(PATH_MAP_1, infoNivel->objetosMapa);
 
   state = JOGANDO;
   // state = SERVINDO;
@@ -133,15 +133,16 @@ void state_play(tNivel *infoNivel){
   memset(keys, 0, sizeof(keys));
   al_start_timer(timer);
 
-  while (1){
+  while (1)
+  {
     al_wait_for_event(queue, &event);
 
     switch (event.type){
     case ALLEGRO_EVENT_TIMER:
-      verificaEntrada(keys, &done, redraw, infoNivel->jogador, frames);
-      
-      verificaPedras(infoNivel->mapa,infoNivel->jogador,infoNivel->jogador->direction);
-      atualizaPlayer(infoNivel->jogador, 1);
+    verificaEntrada(keys, &done, redraw, infoNivel->jogador, frames);
+    verificaPedras(infoNivel->mapa, infoNivel->jogador, infoNivel->jogador->direction, infoNivel->objetosMapa, frames);
+    if (testaMapa(infoNivel->mapa,infoNivel->jogador, infoNivel->objetosMapa,frames))
+      atualizaPlayer(infoNivel->jogador);
 
       if (frames % 60 == 0 && infoNivel->jogador->vivo && infoNivel->relogio > 0)
         infoNivel->relogio--;
@@ -157,7 +158,8 @@ void state_play(tNivel *infoNivel){
       break;
     }
     // Vai para menu de ajuda
-    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1]){
+    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1])
+    {
       keys[ALLEGRO_KEY_H] = 0;
       keys[ALLEGRO_KEY_F1] = 0;
       state = SERVINDO;
@@ -166,98 +168,191 @@ void state_play(tNivel *infoNivel){
     if (redraw && al_is_event_queue_empty(queue))
       draw(redraw, frames, infoNivel);
 
-    if (done){
-      break; 
+    if (done)
+    {
+      break;
     }
     frames++;
   }
 }
 
-void verificaPedras(int **mapa, tPlayer *jogador, int direcao){
-  int newPosX, newPosY;
-
-  if(direcao == UP){
-    printf("up");
-    newPosY = jogador->posY - jogador->vel;
+int testaMapa(int **mapa,tPlayer *jogador,tObjetos *objetos,long frames){
+  int x, y,horizontalOffset,verticalOffset,ok;
+  //Coordenadas do personagem dentro do mapa
+  x = jogador->posX / SIZE_OBJS;
+  y = (jogador->posY - MARGIN_TOP) /SIZE_OBJS;	
+  horizontalOffset = verticalOffset = ok  = 0;
+  bool andou = false;
+  switch (jogador->direction){
+  case UP:
+        verticalOffset=-1;
+        andou=true;
+      break;
+  case BOTTOM:
+      verticalOffset=1;
+      andou = true;
+      break;
+  case LEFT:
+      andou=true;
+      horizontalOffset=-1;
+      break;
+  case RIGHT:
+      horizontalOffset=1;
+      andou=true;
+      break;
   }
-  else if(direcao == BOTTOM){
-    printf("bt");
-    newPosY = jogador->posY + jogador->vel;
 
-  }
-  else if(direcao == LEFT){
-    printf("lef");
-    newPosX = jogador->posX - jogador->vel;
-
-  }
-  else if(direcao == RIGHT){
-    printf("rig");
-
-    newPosX = jogador->posX + jogador->vel;
-  } else if (!direcao){
-    return; 
+  // verifica se andou 
+  if (andou && frames % 10 == 0 ){
+    ok = testaObjetosCaminho(jogador,mapa,objetos,y,x,verticalOffset,horizontalOffset);
   }
 
-  // if (mapa[newPosY][newPosX] == PEDRA){
-  //   printf("nao anda");
 
-  // }else{
+  return ok;
 
-  // printf("ande"); 
-  // }
+}
+
+int testaObjetosCaminho(tPlayer *jogador,int **mapa,tObjetos *objetos,int y,int x,int vertical,int horizontal){
+  int *pos = &mapa[y+vertical][x+horizontal]; 
+
+  
+  if (*pos == TERRA || *pos == VAZIO){
+    *pos = PLAYER;
+    mapa[y][x]=VAZIO;
+    return 1;
+  }
+  if (*pos == DIAMANTE){
+    coletaDiamante(jogador, objetos,mapa);
+    *pos = PLAYER;
+    mapa[y][x]=VAZIO;
+    return 1; 
+  }
+
+  
 
 
-} 
+  return 0;
+}
+
+void mataPlayer(tPlayer *jogador,int x,int y, int **mapa){
+  jogador->vidas--;
+  mapa[y][x]=EXPLOSAO; 
+
+  jogador->posX=SPAWN_X;
+  jogador->posY=SPAWN_Y;
+
+  int yAux,xAux;
+  yAux =  (SPAWN_Y/SIZE_OBJS);
+  xAux = (SPAWN_X/SIZE_OBJS);
+
+  mapa[yAux][xAux] = PLAYER; 
+}
 
 
+void coletaDiamante(tPlayer *jogador,tObjetos *objetos,int **mapa){
+  jogador->pontuacao+=10;
+  jogador->diamantes+=1; 
 
-void atualizaPlayer(tPlayer *jogador, int andou){
-  // DECREMENTO/INCREMENTO EM RELACAO A VELOCIDADE 
-  if(jogador->direction == UP){
+  if (objetos->qtDiamantes == jogador->diamantes){
+    criaSaida(mapa);
+  }
+
+}
+
+void criaSaida(int **mapa){
+  mapa[16][38] = SAIDA; 
+}
+
+
+void verificaPedras(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames){
+
+  int posX, posY;
+  if (frames % 10 == 0){
+    for (int i = 0; i < objetos->qtPedras; i++){
+      posX = objetos->rock[i].x;
+      posY = objetos->rock[i].y;
+      // verifica_rolamento_pedras(mapa, objetos, posX, posY, i);
+      
+      // Testa se deve continuar caindo
+      if (objetos->rock[i].caindo == 1){
+        if (mapa[posX + 1][posY] != VAZIO && mapa[posX + 1][posY] != PLAYER && mapa[posX + 1][posY]){
+          // play_sound(som->fall);
+          objetos->rock[i].caindo = 0;
+        }
+      }
+
+      // Desabamento normal
+      if (mapa[posX + 1][posY] == VAZIO && (posX + 1 < 21)){
+        objetos->rock[i].caindo = 1;
+        objetos->rock[i].x++;
+        mapa[posX + 1][posY] = PEDRA;
+        mapa[posX][posY] = VAZIO;
+      }
+
+    }
+    
+  }
+
+}
+
+void atualizaPlayer(tPlayer *jogador)
+{
+  // DECREMENTO/INCREMENTO EM RELACAO A VELOCIDADE
+  if (jogador->direction == UP){
     jogador->posY -= jogador->vel;
     jogador->tired = 0;
   }
-  if(jogador->direction == BOTTOM){
+  if (jogador->direction == BOTTOM){
     jogador->posY += jogador->vel;
     jogador->tired = 0;
   }
-  if(jogador->direction == LEFT){
+  if (jogador->direction == LEFT)
+  {
     jogador->posX -= jogador->vel;
     jogador->tired = 0;
   }
-  if(jogador->direction == RIGHT){
+  if (jogador->direction == RIGHT)
+  {
     jogador->posX += jogador->vel;
     jogador->tired = 0;
   }
 
-  jogador->direction = STOP; 
+  jogador->direction = STOP;
 }
 
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames){
-  int oldDirection = jogador->direction; 
+  int oldDirection = jogador->direction;
 
-  // VERIFICA A DIRECAO E 
+  // VERIFICA A DIRECAO E
   // VERIFICA SE NAO ESTA NAS BORDAS
-  if (keys[ALLEGRO_KEY_UP] || keys[ALLEGRO_KEY_W]){
-    if ((jogador->posY - SIZE_OBJS - MARGIN_TOP) > 0){
+  if (keys[ALLEGRO_KEY_UP] || keys[ALLEGRO_KEY_W])
+  {
+    if ((jogador->posY - SIZE_OBJS - MARGIN_TOP) > 0)
+    {
       jogador->direction = UP;
       jogador->tired++;
     }
   }
-  else if (keys[ALLEGRO_KEY_DOWN] || keys[ALLEGRO_KEY_S]){
-    if (jogador->posY < HEIGHT - SIZE_OBJS - MARGIN_TOP){
+  else if (keys[ALLEGRO_KEY_DOWN] || keys[ALLEGRO_KEY_S])
+  {
+    if (jogador->posY < HEIGHT - SIZE_OBJS - MARGIN_TOP)
+    {
       jogador->direction = BOTTOM;
       jogador->tired++;
     }
   }
-  else if (keys[ALLEGRO_KEY_LEFT] || keys[ALLEGRO_KEY_A]){
-    if (jogador->posX > SIZE_OBJS){
+  else if (keys[ALLEGRO_KEY_LEFT] || keys[ALLEGRO_KEY_A])
+  {
+    if (jogador->posX > SIZE_OBJS)
+    {
       jogador->direction = LEFT;
       jogador->tired++;
     }
   }
-  else if (keys[ALLEGRO_KEY_RIGHT] || keys[ALLEGRO_KEY_D]){
-    if (jogador->posX < WIDTH - 2 * SIZE_OBJS){
+  else if (keys[ALLEGRO_KEY_RIGHT] || keys[ALLEGRO_KEY_D])
+  {
+    if (jogador->posX < WIDTH - 2 * SIZE_OBJS)
+    {
       jogador->direction = RIGHT;
       jogador->tired++;
     }
@@ -271,8 +366,9 @@ void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *joga
 
   // Verifica se o jogador mudou de direcao
   if (oldDirection != jogador->direction)
-    jogador->animacaoAtual=0; 
-  else{
+    jogador->animacaoAtual = 0;
+  else
+  {
     if (frames % 10 == 0)
       jogador->animacaoAtual++;
     if (jogador->animacaoAtual == 7)
@@ -281,4 +377,3 @@ void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *joga
 
   redraw = true;
 }
-

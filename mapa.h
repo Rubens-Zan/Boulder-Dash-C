@@ -55,7 +55,6 @@ typedef struct{
 
 // FUNCOES
 tObjetos* iniciaObjetos(ALLEGRO_BITMAP* sheet); 
-void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin);
 int** iniciaMapa(char* nome_mapa, tObjetos* obj);
-
+void iniciaPedrasEDiamantes(int **mapa,tObjetos *objetos); 
 #endif

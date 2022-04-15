@@ -2,11 +2,64 @@
 // Função de desenho principal
 void draw(bool redraw, long frames, tNivel *infoNivel)
 {
-    drawHeader(infoNivel->font, infoNivel->relogio, 8, infoNivel->objetos_mapa->diamante[0]);
-    drawMap(infoNivel->mapa, infoNivel->objetos_mapa, frames, 22, 40);
-    drawPlayer(infoNivel->jogador, infoNivel->mapa, infoNivel->objetos_mapa, frames);
+    drawHeader(infoNivel->font, infoNivel->relogio, infoNivel->jogador->vidas,infoNivel->jogador->pontuacao ,infoNivel->jogador->diamantes,infoNivel->objetosMapa->qtDiamantes,infoNivel->objetosMapa->diamante[0]);
+    drawMap(infoNivel->mapa, infoNivel->objetosMapa, frames, 22, 40);
+    drawPlayer(infoNivel->jogador, infoNivel->mapa, infoNivel->objetosMapa, frames);
     al_flip_display();
     redraw = false;
+}
+
+void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
+  int i, j, offsetI, offsetJ;
+  for(i = 0;i < col;i++){
+  	for(j = 0;j < lin;j++){
+  	  offsetI = i * SIZE_OBJS;
+  	  offsetJ = j * SIZE_OBJS;
+  	  switch(mapa[i][j]){
+  	  	case METAL:
+  	  	  al_draw_scaled_bitmap(objetosMapa->metal, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+  	  	  break;
+  	  	case TERRA:
+  	  	  al_draw_scaled_bitmap(objetosMapa->terra, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+  	  	  break;
+  	  	case MURO:
+  	  	  al_draw_scaled_bitmap(objetosMapa->muro, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+  	  	  break;
+        case PEDRA:
+          al_draw_scaled_bitmap(objetosMapa->pedra, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case VAZIO:   
+          al_draw_scaled_bitmap(objetosMapa->vazio, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case SAIDA:
+          al_draw_scaled_bitmap(objetosMapa->saida, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case DIAMANTE:
+          //Reseta frames do diamante se necessário e faz animação
+          if(frames % 25 == 0)
+            objetosMapa->animacao++;
+          if(objetosMapa->animacao == 8)
+          	objetosMapa->animacao = 0;
+          al_draw_scaled_bitmap(objetosMapa->diamante[objetosMapa->animacao], 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case EXPLOSAO:
+          al_draw_scaled_bitmap(objetosMapa->explosao[1], 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          if(frames % 10 == 0)
+            mapa[i][j] = EXPLOSAO2;
+          break;
+        case EXPLOSAO2:
+          al_draw_scaled_bitmap(objetosMapa->explosao[2], 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          if(frames % 10 == 0)
+            mapa[i][j] = EXPLOSAO3;
+          break;
+        case EXPLOSAO3:
+          al_draw_scaled_bitmap(objetosMapa->explosao[3], 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          if(frames % 10 == 0)
+            mapa[i][j] = VAZIO;
+          break;
+  	  }
+  	}
+  } 
 }
 
 void drawPlayer(tPlayer *jogador, int **mapa, tObjetos *obj, long frames)
@@ -20,7 +73,6 @@ void drawPlayer(tPlayer *jogador, int **mapa, tObjetos *obj, long frames)
         break;
     case LEFT:
         al_draw_scaled_bitmap(jogador->animacaoEsq[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
-
         break;
     case RIGHT:
         al_draw_scaled_bitmap(jogador->animacaoDir[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
@@ -58,13 +110,14 @@ void drawInstructions(tNivel *infoNivel)
     al_flip_display();
 }
 
-void drawHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, ALLEGRO_BITMAP *diamanteTextura)
+void drawHeader(ALLEGRO_FONT *fonte, int relogio, int vidas,int pontuacao,int diamantesJogador,int diamantesTotal, ALLEGRO_BITMAP *diamanteTextura)
 {
 
     al_clear_to_color(al_map_rgb(0, 0, 0));
-    al_draw_textf(fonte, al_map_rgb(255, 255, 255), 250, 10, 0, "%05d", 20);
+
+    al_draw_textf(fonte, al_map_rgb(255, 255, 255), 250, 10, 0, "%05d", pontuacao);
     al_draw_bitmap(diamanteTextura, 0, 8, 0);
-    al_draw_textf(fonte, al_map_rgb(255, 255, 255), 20, 10, 0, "%d/%d", 4, MIN_DIAMANTES);
+    al_draw_textf(fonte, al_map_rgb(255, 255, 255), 20, 10, 0, "%d/%d", diamantesJogador, diamantesTotal);
     al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH - 800, 10, 0, "%d", relogio);
     al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH - 600, 10, 0, "Vidas: %d", vidas);
     al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH - 250, 10, 0, "Help: H/F1");
