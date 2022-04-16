@@ -124,7 +124,8 @@ void state_serve(tNivel *infoNivel){
   }
 }
 
-void state_play(tNivel *infoNivel){
+void state_play(tNivel *infoNivel)
+{
   bool done = false;
   bool redraw = true;
   long frames = 0;
@@ -137,12 +138,13 @@ void state_play(tNivel *infoNivel){
   {
     al_wait_for_event(queue, &event);
 
-    switch (event.type){
+    switch (event.type)
+    {
     case ALLEGRO_EVENT_TIMER:
-    verificaEntrada(keys, &done, redraw, infoNivel->jogador, frames);
-    verificaPedras(infoNivel->mapa, infoNivel->jogador, infoNivel->jogador->direction, infoNivel->objetosMapa, frames);
-    if (testaMapa(infoNivel->mapa,infoNivel->jogador, infoNivel->objetosMapa,frames))
-      atualizaPlayer(infoNivel->jogador);
+      verificaEntrada(keys, &done, redraw, infoNivel->jogador, frames);
+      verificaPedras(infoNivel->mapa, infoNivel->jogador, infoNivel->jogador->direction, infoNivel->objetosMapa, frames);
+      if (testaMapa(infoNivel->mapa, infoNivel->jogador, infoNivel->objetosMapa, frames))
+        atualizaPlayer(infoNivel->jogador);
 
       if (frames % 60 == 0 && infoNivel->jogador->vivo && infoNivel->relogio > 0)
         infoNivel->relogio--;
@@ -176,133 +178,139 @@ void state_play(tNivel *infoNivel){
   }
 }
 
-int testaMapa(int **mapa,tPlayer *jogador,tObjetos *objetos,long frames){
-  int x, y,horizontalOffset,verticalOffset,ok;
-  //Coordenadas do personagem dentro do mapa
+int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames)
+{
+  int x, y, horizontalOffset, verticalOffset, ok;
+  // Coordenadas do personagem dentro do mapa
   x = jogador->posX / SIZE_OBJS;
-  y = (jogador->posY - MARGIN_TOP) /SIZE_OBJS;	
-  horizontalOffset = verticalOffset = ok  = 0;
+  y = (jogador->posY - MARGIN_TOP) / SIZE_OBJS;
+  horizontalOffset = verticalOffset = ok = 0;
   bool andou = false;
-  switch (jogador->direction){
+  switch (jogador->direction)
+  {
   case UP:
-        verticalOffset=-1;
-        andou=true;
-      break;
+    verticalOffset = -1;
+    andou = true;
+    break;
   case BOTTOM:
-      verticalOffset=1;
-      andou = true;
-      break;
+    verticalOffset = 1;
+    andou = true;
+    break;
   case LEFT:
-      andou=true;
-      horizontalOffset=-1;
-      break;
+    andou = true;
+    horizontalOffset = -1;
+    break;
   case RIGHT:
-      horizontalOffset=1;
-      andou=true;
-      break;
+    horizontalOffset = 1;
+    andou = true;
+    break;
   }
 
-  // verifica se andou 
-  if (andou && frames % 10 == 0 ){
-    ok = testaObjetosCaminho(jogador,mapa,objetos,y,x,verticalOffset,horizontalOffset);
+  // verifica se andou
+  if (andou && frames % 10 == 0)
+  {
+    ok = testaObjetosCaminho(jogador, mapa, objetos, y, x, verticalOffset, horizontalOffset);
   }
-
 
   return ok;
-
 }
 
-int testaObjetosCaminho(tPlayer *jogador,int **mapa,tObjetos *objetos,int y,int x,int vertical,int horizontal){
-  int *pos = &mapa[y+vertical][x+horizontal]; 
+int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int y, int x, int vertical, int horizontal)
+{
+  int *pos = &mapa[y + vertical][x + horizontal];
 
-  
-  if (*pos == TERRA || *pos == VAZIO){
+  if (*pos == TERRA || *pos == VAZIO)
+  {
     *pos = PLAYER;
-    mapa[y][x]=VAZIO;
+    mapa[y][x] = VAZIO;
     return 1;
   }
-  if (*pos == DIAMANTE){
-    coletaDiamante(jogador, objetos,mapa);
+  if (*pos == DIAMANTE)
+  {
+    coletaDiamante(jogador, objetos, mapa);
     *pos = PLAYER;
-    mapa[y][x]=VAZIO;
-    return 1; 
+    mapa[y][x] = VAZIO;
+    return 1;
   }
-
-  
-
 
   return 0;
 }
 
-void mataPlayer(tPlayer *jogador,int x,int y, int **mapa){
+void mataPlayer(tPlayer *jogador, int x, int y, int **mapa)
+{
   jogador->vidas--;
-  mapa[y][x]=EXPLOSAO; 
+  mapa[y][x] = EXPLOSAO;
 
-  jogador->posX=SPAWN_X;
-  jogador->posY=SPAWN_Y;
+  jogador->posX = SPAWN_X;
+  jogador->posY = SPAWN_Y;
 
-  int yAux,xAux;
-  yAux =  (SPAWN_Y/SIZE_OBJS);
-  xAux = (SPAWN_X/SIZE_OBJS);
+  int yAux, xAux;
+  yAux = (SPAWN_Y / SIZE_OBJS);
+  xAux = (SPAWN_X / SIZE_OBJS);
 
-  mapa[yAux][xAux] = PLAYER; 
+  mapa[yAux][xAux] = PLAYER;
 }
 
+void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa)
+{
+  jogador->pontuacao += 10;
+  jogador->diamantes += 1;
 
-void coletaDiamante(tPlayer *jogador,tObjetos *objetos,int **mapa){
-  jogador->pontuacao+=10;
-  jogador->diamantes+=1; 
-
-  if (objetos->qtDiamantes == jogador->diamantes){
+  if (objetos->qtDiamantes == jogador->diamantes)
+  {
     criaSaida(mapa);
   }
-
 }
 
-void criaSaida(int **mapa){
-  mapa[16][38] = SAIDA; 
+void criaSaida(int **mapa)
+{
+  mapa[16][38] = SAIDA;
 }
 
-
-void verificaPedras(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames){
+void verificaPedras(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames)
+{
 
   int posX, posY;
-  if (frames % 10 == 0){
-    for (int i = 0; i < objetos->qtPedras; i++){
+  if (frames % 10 == 0)
+  {
+    for (int i = 0; i < objetos->qtPedras; i++)
+    {
       posX = objetos->rock[i].x;
       posY = objetos->rock[i].y;
       // verifica_rolamento_pedras(mapa, objetos, posX, posY, i);
-      
+
       // Testa se deve continuar caindo
-      if (objetos->rock[i].caindo == 1){
-        if (mapa[posX + 1][posY] != VAZIO && mapa[posX + 1][posY] != PLAYER && mapa[posX + 1][posY]){
+      if (objetos->rock[i].caindo == 1)
+      {
+        if (mapa[posX + 1][posY] != VAZIO && mapa[posX + 1][posY] != PLAYER && mapa[posX + 1][posY])
+        {
           // play_sound(som->fall);
           objetos->rock[i].caindo = 0;
         }
       }
 
       // Desabamento normal
-      if (mapa[posX + 1][posY] == VAZIO && (posX + 1 < 21)){
+      if (mapa[posX + 1][posY] == VAZIO && (posX + 1 < 21))
+      {
         objetos->rock[i].caindo = 1;
         objetos->rock[i].x++;
         mapa[posX + 1][posY] = PEDRA;
         mapa[posX][posY] = VAZIO;
       }
-
     }
-    
   }
-
 }
 
 void atualizaPlayer(tPlayer *jogador)
 {
   // DECREMENTO/INCREMENTO EM RELACAO A VELOCIDADE
-  if (jogador->direction == UP){
+  if (jogador->direction == UP)
+  {
     jogador->posY -= jogador->vel;
     jogador->tired = 0;
   }
-  if (jogador->direction == BOTTOM){
+  if (jogador->direction == BOTTOM)
+  {
     jogador->posY += jogador->vel;
     jogador->tired = 0;
   }
@@ -320,7 +328,8 @@ void atualizaPlayer(tPlayer *jogador)
   jogador->direction = STOP;
 }
 
-void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames){
+void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames)
+{
   int oldDirection = jogador->direction;
 
   // VERIFICA A DIRECAO E

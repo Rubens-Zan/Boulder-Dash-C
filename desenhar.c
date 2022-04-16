@@ -10,29 +10,29 @@ void draw(bool redraw, long frames, tNivel *infoNivel)
 }
 
 void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
-  int i, j, offsetI, offsetJ;
+  int i, j, scaledI, scaledJ;
   for(i = 0;i < col;i++){
   	for(j = 0;j < lin;j++){
-  	  offsetI = i * SIZE_OBJS;
-  	  offsetJ = j * SIZE_OBJS;
+  	  scaledI = (i * SIZE_OBJS)+ MARGIN_TOP;
+  	  scaledJ = j * SIZE_OBJS;
   	  switch(mapa[i][j]){
   	  	case METAL:
-  	  	  al_draw_scaled_bitmap(objetosMapa->metal, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+  	  	  al_draw_scaled_bitmap(objetosMapa->metal, 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
   	  	  break;
   	  	case TERRA:
-  	  	  al_draw_scaled_bitmap(objetosMapa->terra, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+  	  	  al_draw_scaled_bitmap(objetosMapa->terra, 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
   	  	  break;
   	  	case MURO:
-  	  	  al_draw_scaled_bitmap(objetosMapa->muro, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+  	  	  al_draw_scaled_bitmap(objetosMapa->muro, 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
   	  	  break;
         case PEDRA:
-          al_draw_scaled_bitmap(objetosMapa->pedra, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->pedra, 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           break;
         case VAZIO:   
-          al_draw_scaled_bitmap(objetosMapa->vazio, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->vazio, 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           break;
         case SAIDA:
-          al_draw_scaled_bitmap(objetosMapa->saida, 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->saida, 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           break;
         case DIAMANTE:
           //Reseta frames do diamante se necessário e faz animação
@@ -40,20 +40,20 @@ void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
             objetosMapa->animacao++;
           if(objetosMapa->animacao == 8)
           	objetosMapa->animacao = 0;
-          al_draw_scaled_bitmap(objetosMapa->diamante[objetosMapa->animacao], 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->diamante[objetosMapa->animacao], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           break;
         case EXPLOSAO:
-          al_draw_scaled_bitmap(objetosMapa->explosao[1], 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->explosao[1], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           if(frames % 10 == 0)
             mapa[i][j] = EXPLOSAO2;
           break;
         case EXPLOSAO2:
-          al_draw_scaled_bitmap(objetosMapa->explosao[2], 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->explosao[2], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           if(frames % 10 == 0)
             mapa[i][j] = EXPLOSAO3;
           break;
         case EXPLOSAO3:
-          al_draw_scaled_bitmap(objetosMapa->explosao[3], 0, 0, 15, 16, offsetJ, offsetI + MARGIN_TOP, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->explosao[3], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           if(frames % 10 == 0)
             mapa[i][j] = VAZIO;
           break;
@@ -62,8 +62,13 @@ void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
   } 
 }
 
-void drawPlayer(tPlayer *jogador, int **mapa, tObjetos *obj, long frames)
-{
+void drawPlayer(tPlayer *jogador, int **mapa, tObjetos *obj, long frames){
+
+  int offsetI, offsetJ; 
+  offsetJ = jogador->posX;
+  offsetI = jogador->posY;
+
+
     switch (jogador->direction){
     case UP:
         al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
