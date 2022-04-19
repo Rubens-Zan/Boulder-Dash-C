@@ -85,7 +85,8 @@ void state_init(tNivel *infoNivel)
   infoNivel->state = JOGANDO;
 }
 
-void state_serve(tNivel *infoNivel){
+void state_serve(tNivel *infoNivel)
+{
   bool done = false;
   al_flush_event_queue(queue);
   while (1)
@@ -229,7 +230,7 @@ int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int y, 
   }
   if (*pos == DIAMANTE)
   {
-    coletaDiamante(jogador, objetos, mapa, posY,posX);
+    coletaDiamante(jogador, objetos, mapa, posY, posX);
     *pos = PLAYER;
     mapa[y][x] = VAZIO;
     return 1;
@@ -243,28 +244,28 @@ void mataPlayer(tPlayer *jogador, int x, int y, int **mapa)
   jogador->vidas--;
   mapa[x][y] = EXPLOSAO;
 
-
   jogador->posX = SPAWN_X;
   jogador->posY = SPAWN_Y;
 
   int yAux, xAux;
-  yAux = ((SPAWN_Y / SIZE_OBJS)-MARGIN_TOP);
+  yAux = ((SPAWN_Y / SIZE_OBJS) - MARGIN_TOP);
   xAux = (SPAWN_X / SIZE_OBJS);
 
   mapa[yAux][xAux] = PLAYER;
 }
 
-void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa, int posY,int posX)
+void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa, int posY, int posX)
 {
   jogador->pontuacao += 10;
   jogador->diamantes += 1;
 
-  for (int i =0;i<objetos->total;i++){
-    rochedos *rochedoAtual = &objetos->rochedos[i]; 
+  for (int i = 0; i < objetos->total; i++)
+  {
+    rochedos *rochedoAtual = &objetos->rochedos[i];
     if (objetos->rochedos[i].ativo && rochedoAtual->y == posY && rochedoAtual->x == posX)
-      rochedoAtual->ativo = false;  
+      rochedoAtual->ativo = false;
   }
-  
+
   // TODO AJUSTAS OBJETO COM ROCHAS PARA QUE SEJA DESTRUIDO DIAMANTE COLETADO
   if (objetos->qtDiamantes == jogador->diamantes)
   {
@@ -281,21 +282,26 @@ void verificaPedras(int **mapa, tPlayer *jogador, tDirecao direcao, tObjetos *ob
 {
 
   int posX, posY;
-  if (frames % 10 == 0){
-    for (int i = 0; i < objetos->total; i++){
-      rochedos *rochedoAtual = &objetos->rochedos[i]; 
+  if (frames % 10 == 0)
+  {
+    for (int i = 0; i < objetos->total; i++)
+    {
+      rochedos *rochedoAtual = &objetos->rochedos[i];
 
-      if (rochedoAtual->ativo){
+      if (rochedoAtual->ativo)
+      {
         posX = rochedoAtual->x;
         posY = rochedoAtual->y;
 
-        rolaRochas(mapa, objetos, posX, posY, i);
+        // rolaRochas(mapa, objetos, posX, posY, i);
 
         // Testa se deve continuar caindo
-        if (rochedoAtual->caindo == 1){
+        if (rochedoAtual->caindo == 1)
+        {
           // Se a pedra esta caindo e o player esta em baixo mata ele
-          if (mapa[posX+1][posY] == PLAYER){
-            mataPlayer(jogador, posX+1, posY, mapa);
+          if (mapa[posX + 1][posY] == PLAYER)
+          {
+            mataPlayer(jogador, posX + 1, posY, mapa);
           }
 
           if (mapa[posX + 1][posY] != VAZIO && mapa[posX + 1][posY] != PLAYER && mapa[posX + 1][posY])
@@ -317,45 +323,60 @@ void verificaPedras(int **mapa, tPlayer *jogador, tDirecao direcao, tObjetos *ob
   }
 }
 
-void rolaRochas(int **mapa,tObjetos *objetos, int posX,int posY, int rochaAtual){
+void rolaRochas(int **mapa, tObjetos *objetos, int posX, int posY, int rochaAtual)
+{
   int pedraX = objetos->rochedos[rochaAtual].x;
   int pedraY = objetos->rochedos[rochaAtual].y;
   int tipo = objetos->rochedos[rochaAtual].tipo;
-  
-  if (
-     (mapa[posX + 1][posY+1] == VAZIO && (posX + 1 < 21)) &&
-      (mapa[posX+1][posY] == PEDRA || mapa[posX+1][posY] == DIAMANTE)){
-        // mapa[posX][posY] = VAZIO; 
-        // mapa[posX + 1][posY+1]= tipo; 
-        // objetos->rochedos[rochaAtual].caindo = 1;
-        // objetos->rochedos[rochaAtual].x =posX+1;
-        // objetos->rochedos[rochaAtual].x =posY+1;
-        printf("caia");  
 
+  if (mapa[posX + 1][posY + 1] == VAZIO && (posX + 1 < 21))
+  {
+    if (mapa[posX + 1][posY+1] == PEDRA || mapa[posX + 1][posY+1] == DIAMANTE)
+    {
+      mapa[posX][posY] = VAZIO;
+      mapa[posX + 1][posY + 1] = tipo;
+      objetos->rochedos[rochaAtual].caindo = 1;
+      objetos->rochedos[rochaAtual].x = posX + 1;
+      objetos->rochedos[rochaAtual].x = posY + 1;
+    }
+    if (mapa[posX - 1][posY-1] == PEDRA || mapa[posX - 1][posY-1] == DIAMANTE)
+    {
+      mapa[posX][posY] = VAZIO;
+      mapa[posX + 1][posY + 1] = tipo;
+      objetos->rochedos[rochaAtual].caindo = 1;
+      objetos->rochedos[rochaAtual].x = posX - 1;
+      objetos->rochedos[rochaAtual].x = posY - 1;
+    }
   }
 }
-
 
 void atualizaPlayer(tPlayer *jogador)
 {
   // DECREMENTO/INCREMENTO EM RELACAO A VELOCIDADE
   if (jogador->direction == UP)
   {
+    printf("up");
     jogador->posY -= jogador->vel;
     jogador->tired = 0;
   }
   if (jogador->direction == BOTTOM)
   {
+    printf("BOTTOM");
+
     jogador->posY += jogador->vel;
     jogador->tired = 0;
   }
   if (jogador->direction == LEFT)
   {
+    printf("LEFT");
+
     jogador->posX -= jogador->vel;
     jogador->tired = 0;
   }
   if (jogador->direction == RIGHT)
   {
+    printf("RIGHT");
+    
     jogador->posX += jogador->vel;
     jogador->tired = 0;
   }
@@ -365,7 +386,7 @@ void atualizaPlayer(tPlayer *jogador)
 
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames)
 {
-  int oldDirection = jogador->direction;
+  tDirecao oldDirection = jogador->direction;
 
   // VERIFICA A DIRECAO E
   // VERIFICA SE NAO ESTA NAS BORDAS

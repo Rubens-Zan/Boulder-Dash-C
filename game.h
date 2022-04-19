@@ -52,7 +52,7 @@ typedef struct tPlayer{
     ALLEGRO_BITMAP *animacaoDir[7];
     int pontuacao;
     int diamantes; 
-    int direction; 
+    tDirecao direction; 
     int animacaoAtual;
     int tired;
     int vivo,vidas;
