@@ -24,13 +24,12 @@
 #define COLS 40
 
 typedef struct{
-  int x, y;
-  int caindo;
-} rock;
+  int x, y,caindo,tipo;
+} rochedos;
 
 typedef struct{
-  rock *rock;
-  rock *diamond;
+  rochedos *rochedos;
+  rochedos *diamond;
   ALLEGRO_BITMAP* terra;
   ALLEGRO_BITMAP* muro;
   ALLEGRO_BITMAP* metal;

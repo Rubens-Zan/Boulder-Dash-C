@@ -88,7 +88,7 @@ typedef struct tNivel{
 }tNivel; 
 
 
-
+void rolaRochas(int **mapa,tObjetos *objetos, int posX,int posY, int rochaAtual);
 
 
 

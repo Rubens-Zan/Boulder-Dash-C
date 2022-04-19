@@ -56,8 +56,7 @@ int **iniciaMapa(char *pathMapa, tObjetos *obj){
     }
   obj->qtPedras = qtPedras;
   obj->qtDiamantes = qtDiamantes;
-  obj->rock = malloc(qtPedras * sizeof(rock));
-  obj->diamond = malloc(qtDiamantes * sizeof(rock));
+  obj->rochedos = malloc((qtPedras + qtDiamantes) * sizeof(rochedos));
   iniciaPedrasEDiamantes(mapa,obj); 
   fclose(arq);
   return mapa;
@@ -81,17 +80,15 @@ void iniciaPedrasEDiamantes(int **mapa,tObjetos *objetos){
 
  for(i = 0;i < 22;i++){
   	for(j = 0;j < 40;j++){
-  	  if(mapa[i][j] == PEDRA){
-  	  	objetos->rock[pedraAux].x = i;
-  	    objetos->rock[pedraAux].y = j;
-  	    objetos->rock[pedraAux].caindo = 0;
+      int tipo = mapa[i][j];
+      
+  	  if(tipo == PEDRA || tipo == DIAMANTE){
+  	  	objetos->rochedos[pedraAux].x = i;
+  	    objetos->rochedos[pedraAux].y = j;
+  	    objetos->rochedos[pedraAux].caindo = 0;
+  	    objetos->rochedos[pedraAux].tipo =tipo;
+
   	    pedraAux++;
-  	  }
-  	  if(mapa[i][j] == DIAMANTE){
-  	  	objetos->diamond[diamanteAux].x = i;
-  	    objetos->diamond[diamanteAux].y = j;
-  	    objetos->diamond[diamanteAux].caindo = 0;
-  	    diamanteAux++;
   	  }
   	}
   }

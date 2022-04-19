@@ -83,7 +83,6 @@ void state_init(tNivel *infoNivel)
   infoNivel->mapa = iniciaMapa(PATH_MAP_1, infoNivel->objetosMapa);
 
   state = JOGANDO;
-  // state = SERVINDO;
 }
 
 void state_serve(tNivel *infoNivel){
@@ -239,13 +238,14 @@ int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int y, 
 void mataPlayer(tPlayer *jogador, int x, int y, int **mapa)
 {
   jogador->vidas--;
-  mapa[y][x] = EXPLOSAO;
+  mapa[x][y] = EXPLOSAO;
+
 
   jogador->posX = SPAWN_X;
   jogador->posY = SPAWN_Y;
 
   int yAux, xAux;
-  yAux = (SPAWN_Y / SIZE_OBJS);
+  yAux = ((SPAWN_Y / SIZE_OBJS)-MARGIN_TOP);
   xAux = (SPAWN_X / SIZE_OBJS);
 
   mapa[yAux][xAux] = PLAYER;
@@ -255,6 +255,10 @@ void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa)
 {
   jogador->pontuacao += 10;
   jogador->diamantes += 1;
+
+  // objetos->rochasAtuais--;
+  // objetos.
+  // TODO AJUSTAS OBJETO COM ROCHAS PARA QUE SEJA DESTRUIDO DIAMANTE COLETADO
 
   if (objetos->qtDiamantes == jogador->diamantes)
   {
@@ -271,35 +275,56 @@ void verificaPedras(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos
 {
 
   int posX, posY;
-  if (frames % 10 == 0)
-  {
-    for (int i = 0; i < objetos->qtPedras; i++)
-    {
-      posX = objetos->rock[i].x;
-      posY = objetos->rock[i].y;
-      // verifica_rolamento_pedras(mapa, objetos, posX, posY, i);
+  if (frames % 10 == 0){
+    for (int i = 0; i < objetos->qtPedras + objetos->qtDiamantes; i++){
+      posX = objetos->rochedos[i].x;
+      posY = objetos->rochedos[i].y;
+
+      rolaRochas(mapa, objetos, posX, posY, i);
 
       // Testa se deve continuar caindo
-      if (objetos->rock[i].caindo == 1)
-      {
+      if (objetos->rochedos[i].caindo == 1){
+        // Se a pedra esta caindo e o player esta em baixo mata ele
+        if (mapa[posX+1][posY] == PLAYER){
+          mataPlayer(jogador, posX+1, posY, mapa);
+        }
+
         if (mapa[posX + 1][posY] != VAZIO && mapa[posX + 1][posY] != PLAYER && mapa[posX + 1][posY])
         {
-          // play_sound(som->fall);
-          objetos->rock[i].caindo = 0;
+          objetos->rochedos[i].caindo = 0;
         }
       }
 
       // Desabamento normal
       if (mapa[posX + 1][posY] == VAZIO && (posX + 1 < 21))
       {
-        objetos->rock[i].caindo = 1;
-        objetos->rock[i].x++;
-        mapa[posX + 1][posY] = PEDRA;
+        objetos->rochedos[i].caindo = 1;
+        objetos->rochedos[i].x++;
+        mapa[posX + 1][posY] = objetos->rochedos[i].tipo;
         mapa[posX][posY] = VAZIO;
       }
     }
   }
 }
+
+void rolaRochas(int **mapa,tObjetos *objetos, int posX,int posY, int rochaAtual){
+  int pedraX = objetos->rochedos[rochaAtual].x;
+  int pedraY = objetos->rochedos[rochaAtual].y;
+  int tipo = objetos->rochedos[rochaAtual].tipo;
+  
+  if (
+     (mapa[posX + 1][posY+1] == VAZIO && (posX + 1 < 21)) &&
+      (mapa[posX+1][posY] == PEDRA || mapa[posX+1][posY] == DIAMANTE)){
+        // mapa[posX][posY] = VAZIO; 
+        // mapa[posX + 1][posY+1]= tipo; 
+        // objetos->rochedos[rochaAtual].caindo = 1;
+        // objetos->rochedos[rochaAtual].x =posX+1;
+        // objetos->rochedos[rochaAtual].x =posY+1;
+        printf("caia");  
+
+  }
+}
+
 
 void atualizaPlayer(tPlayer *jogador)
 {
