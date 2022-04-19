@@ -24,23 +24,25 @@
 #define PATH_SPRITESHEET "resources/img/spritesheet.png"
 
 
-enum
+typedef enum tState
 {
     INICIO,
     SERVINDO,
     JOGANDO,
     FIMPART,
     FIMJOGO
-} state;
+}tState;
 
-enum
+
+typedef enum tDirecao
 {
     STOP, 
     UP,
     LEFT,
     BOTTOM,
     RIGHT
-} direcao;
+}tDirecao;
+
 
 
 typedef struct tPlayer{
@@ -70,6 +72,7 @@ typedef struct objetoMovel{
 
 // TODO ADICIONAR AS VARIAVEIS GLOBAIS TUDO AQ
 typedef struct tNivel{
+    int state;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT event;
     ALLEGRO_EVENT_QUEUE *queue;
@@ -97,7 +100,7 @@ void state_serve(tNivel *infoNivel);
 void state_play(tNivel *infoNivel);
 void state_end(tNivel *infoNivel);
 void state_close(tNivel *infoNivel);
-void coletaDiamante(tPlayer *jogador,tObjetos *objetos,int **mapa); 
+void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa, int posY,int posX);
 
 int testaObjetosCaminho(tPlayer *jogador,int **mapa,tObjetos *objetos,int y,int x,int vertical,int horizontal);
 int testaMapa(int **mapa,tPlayer *jogador,tObjetos *objetos,long frames);
@@ -105,7 +108,7 @@ void criaSaida(int **mapa);
 
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames);
 void atualizaPlayer(tPlayer *jogador); 
-void verificaPedras(int **mapa, tPlayer *jogador, int direcao,tObjetos *objetos, long frames);
+void verificaPedras(int **mapa, tPlayer *jogador, tDirecao direcao,tObjetos *objetos, long frames);
 void mataPlayer(tPlayer *jogador,int x,int y, int **mapa);
 
 

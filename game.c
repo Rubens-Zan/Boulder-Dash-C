@@ -82,7 +82,7 @@ void state_init(tNivel *infoNivel)
   infoNivel->objetosMapa = iniciaObjetos(infoNivel->sheet);
   infoNivel->mapa = iniciaMapa(PATH_MAP_1, infoNivel->objetosMapa);
 
-  state = JOGANDO;
+  infoNivel->state = JOGANDO;
 }
 
 void state_serve(tNivel *infoNivel){
@@ -108,14 +108,14 @@ void state_serve(tNivel *infoNivel){
     {
       keys[ALLEGRO_KEY_H] = 0;
       keys[ALLEGRO_KEY_F1] = 0;
-      state = JOGANDO;
+      infoNivel->state = JOGANDO;
       done = true;
     }
     // Caso ESC seja pressionado, fim partida
     else if (keys[ALLEGRO_KEY_ESCAPE])
     {
       keys[ALLEGRO_KEY_ESCAPE] = 0;
-      state = FIMPART;
+      infoNivel->state = FIMPART;
       done = true;
     }
     if (done)
@@ -163,7 +163,7 @@ void state_play(tNivel *infoNivel)
     {
       keys[ALLEGRO_KEY_H] = 0;
       keys[ALLEGRO_KEY_F1] = 0;
-      state = SERVINDO;
+      infoNivel->state = SERVINDO;
       done = true;
     }
     if (redraw && al_is_event_queue_empty(queue))
@@ -216,7 +216,10 @@ int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames)
 
 int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int y, int x, int vertical, int horizontal)
 {
-  int *pos = &mapa[y + vertical][x + horizontal];
+  int posX = x + horizontal;
+  int posY = y + horizontal;
+
+  int *pos = &mapa[posY][posX];
 
   if (*pos == TERRA || *pos == VAZIO)
   {
@@ -226,7 +229,7 @@ int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int y, 
   }
   if (*pos == DIAMANTE)
   {
-    coletaDiamante(jogador, objetos, mapa);
+    coletaDiamante(jogador, objetos, mapa, posY,posX);
     *pos = PLAYER;
     mapa[y][x] = VAZIO;
     return 1;
@@ -251,15 +254,18 @@ void mataPlayer(tPlayer *jogador, int x, int y, int **mapa)
   mapa[yAux][xAux] = PLAYER;
 }
 
-void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa)
+void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa, int posY,int posX)
 {
   jogador->pontuacao += 10;
   jogador->diamantes += 1;
 
-  // objetos->rochasAtuais--;
-  // objetos.
+  for (int i =0;i<objetos->total;i++){
+    rochedos *rochedoAtual = &objetos->rochedos[i]; 
+    if (objetos->rochedos[i].ativo && rochedoAtual->y == posY && rochedoAtual->x == posX)
+      rochedoAtual->ativo = false;  
+  }
+  
   // TODO AJUSTAS OBJETO COM ROCHAS PARA QUE SEJA DESTRUIDO DIAMANTE COLETADO
-
   if (objetos->qtDiamantes == jogador->diamantes)
   {
     criaSaida(mapa);
@@ -271,37 +277,41 @@ void criaSaida(int **mapa)
   mapa[16][38] = SAIDA;
 }
 
-void verificaPedras(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames)
+void verificaPedras(int **mapa, tPlayer *jogador, tDirecao direcao, tObjetos *objetos, long frames)
 {
 
   int posX, posY;
   if (frames % 10 == 0){
-    for (int i = 0; i < objetos->qtPedras + objetos->qtDiamantes; i++){
-      posX = objetos->rochedos[i].x;
-      posY = objetos->rochedos[i].y;
+    for (int i = 0; i < objetos->total; i++){
+      rochedos *rochedoAtual = &objetos->rochedos[i]; 
 
-      rolaRochas(mapa, objetos, posX, posY, i);
+      if (rochedoAtual->ativo){
+        posX = rochedoAtual->x;
+        posY = rochedoAtual->y;
 
-      // Testa se deve continuar caindo
-      if (objetos->rochedos[i].caindo == 1){
-        // Se a pedra esta caindo e o player esta em baixo mata ele
-        if (mapa[posX+1][posY] == PLAYER){
-          mataPlayer(jogador, posX+1, posY, mapa);
+        rolaRochas(mapa, objetos, posX, posY, i);
+
+        // Testa se deve continuar caindo
+        if (rochedoAtual->caindo == 1){
+          // Se a pedra esta caindo e o player esta em baixo mata ele
+          if (mapa[posX+1][posY] == PLAYER){
+            mataPlayer(jogador, posX+1, posY, mapa);
+          }
+
+          if (mapa[posX + 1][posY] != VAZIO && mapa[posX + 1][posY] != PLAYER && mapa[posX + 1][posY])
+          {
+            rochedoAtual->caindo = 0;
+          }
         }
 
-        if (mapa[posX + 1][posY] != VAZIO && mapa[posX + 1][posY] != PLAYER && mapa[posX + 1][posY])
+        // Desabamento normal
+        if (mapa[posX + 1][posY] == VAZIO && (posX + 1 < 21))
         {
-          objetos->rochedos[i].caindo = 0;
+          rochedoAtual->caindo = 1;
+          rochedoAtual->x++;
+          mapa[posX + 1][posY] = rochedoAtual->tipo;
+          mapa[posX][posY] = VAZIO;
         }
-      }
-
-      // Desabamento normal
-      if (mapa[posX + 1][posY] == VAZIO && (posX + 1 < 21))
-      {
-        objetos->rochedos[i].caindo = 1;
-        objetos->rochedos[i].x++;
-        mapa[posX + 1][posY] = objetos->rochedos[i].tipo;
-        mapa[posX][posY] = VAZIO;
       }
     }
   }

@@ -56,6 +56,8 @@ int **iniciaMapa(char *pathMapa, tObjetos *obj){
     }
   obj->qtPedras = qtPedras;
   obj->qtDiamantes = qtDiamantes;
+  obj->total = qtDiamantes+qtPedras; 
+  
   obj->rochedos = malloc((qtPedras + qtDiamantes) * sizeof(rochedos));
   iniciaPedrasEDiamantes(mapa,obj); 
   fclose(arq);
@@ -87,6 +89,7 @@ void iniciaPedrasEDiamantes(int **mapa,tObjetos *objetos){
   	    objetos->rochedos[pedraAux].y = j;
   	    objetos->rochedos[pedraAux].caindo = 0;
   	    objetos->rochedos[pedraAux].tipo =tipo;
+        objetos->rochedos[pedraAux].ativo=true;
 
   	    pedraAux++;
   	  }
@@ -104,6 +107,6 @@ void destroi_mapa(int **mapa){
 
 void destroi_objetos(tObjetos *obj){
   free(obj->pedra);
-  free(obj->diamante);
+  free(obj->diamante - 8);
   free(obj);
 }

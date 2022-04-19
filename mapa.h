@@ -25,6 +25,7 @@
 
 typedef struct{
   int x, y,caindo,tipo;
+  bool ativo; 
 } rochedos;
 
 typedef struct{
@@ -38,7 +39,7 @@ typedef struct{
   ALLEGRO_BITMAP* saida;
   ALLEGRO_BITMAP* diamante[8];
   ALLEGRO_BITMAP* explosao[4];
-  int qtPedras, qtDiamantes;
+  int qtPedras, qtDiamantes,total;
   int animacao;
 }tObjetos;
 
