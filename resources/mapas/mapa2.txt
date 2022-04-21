@@ -1,0 +1,23 @@
+22 40
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+0.r..r..0.r...4.0... .r.wr......0..rr..0
+0.......0......rwrr. ...0 ..4...0....r.0
+0                                      0
+Wd......0.r....rw.r. .. 0..r..4.0..r.r.0
+0.......0.r....rw.r. r..0.....r.0... ..0
+Wwwwwwwwwwwwwwwwwwww wwwwwwwwwwwwwwwwwwW
+0....rr.0..r....0... ..rw....r..0.....rW
+0.......0.. ....0... ...0....r. 0.....rW
+0                                      0
+Wr..r...0....r..0..r ...0......dwr.....0
+Wr....r.0..r..r.0... . rw.......wr...r.0
+0.r.....0...r...0... . rw.......0 r..r.0
+Wwwwwwwwwwwwwwwwwwww wwwwwwwwwwwwwwwwwwW
+Wr.  q..0....r.rw... ...0.rd..r.0......0
+0.....r.wr......0..4 ...0 ..r...0.r.rr.0
+0                                      0
+Wd.. .r.wr....r.0.r. ..rw.r.r...0......0
+0.....r.wr..4...0... r..0..r....0...rr 0
+0.4... rw..r....0.Xd r..0. .....0...rr 0
+0.r.... 0.. ..r.0.P. ...0....r.rw.... .0
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW

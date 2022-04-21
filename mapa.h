@@ -20,11 +20,11 @@
 #define EXPLOSAO3 9
 #define SAIDA     10
 
-#define ROWS 22
-#define COLS 40
+#define TOTAL_LINHAS 22
+#define TOTAL_COLUNAS 40
 
 typedef struct{
-  int x, y,caindo,tipo;
+  int lin,col, caindo, tipo;
   bool ativo; 
 } rochedos;
 

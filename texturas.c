@@ -11,9 +11,9 @@ tPlayer* inicia_jogador(ALLEGRO_BITMAP* sheet){
   	printf("Erro ao alocar memoria!\n");
   	exit(1);
   }
-  jogador->posX = SPAWN_X;
-  jogador->posY = SPAWN_Y;
-  jogador->vel = SIZE_OBJS;
+  jogador->col = 3;
+  jogador->lin = 2;
+  jogador->vel = 1;
   jogador->animacaoAtual = jogador->pontuacao = jogador->diamantes = 0;
   jogador->tired = 0;
   jogador->vidas = 7; 

@@ -74,14 +74,13 @@ void inicializarAllegro(tNivel *infoNivel)
   al_register_event_source(queue, al_get_timer_event_source(timer));
 }
 
-void state_init(tNivel *infoNivel)
-{
+void state_init(tNivel *infoNivel){
 
   inicializarAllegro(infoNivel);
   infoNivel->jogador = inicia_jogador(infoNivel->sheet);
   infoNivel->objetosMapa = iniciaObjetos(infoNivel->sheet);
   infoNivel->mapa = iniciaMapa(PATH_MAP_1, infoNivel->objetosMapa);
-
+  infoNivel->relogio= 150; 
   infoNivel->state = JOGANDO;
 }
 
@@ -145,9 +144,9 @@ void state_play(tNivel *infoNivel)
       verificaPedras(infoNivel->mapa, infoNivel->jogador, infoNivel->jogador->direction, infoNivel->objetosMapa, frames);
       if (testaMapa(infoNivel->mapa, infoNivel->jogador, infoNivel->objetosMapa, frames))
         atualizaPlayer(infoNivel->jogador);
-
-      if (frames % 60 == 0 && infoNivel->jogador->vivo && infoNivel->relogio > 0)
+      if (frames % 60 == 0 && infoNivel->jogador->vivo && infoNivel->relogio > 0){
         infoNivel->relogio--;
+      }
       break;
     case ALLEGRO_EVENT_KEY_DOWN:
       keys[event.keyboard.keycode] = KEY_SEEN | KEY_RELEASED;
@@ -180,12 +179,13 @@ void state_play(tNivel *infoNivel)
 
 int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames)
 {
-  int x, y, horizontalOffset, verticalOffset, ok;
+  int colAtual, linAtual, horizontalOffset, verticalOffset, ok;
   // Coordenadas do personagem dentro do mapa
-  x = jogador->posX / SIZE_OBJS;
-  y = (jogador->posY - MARGIN_TOP) / SIZE_OBJS;
+  colAtual = jogador->col;
+  linAtual = jogador->lin;
   horizontalOffset = verticalOffset = ok = 0;
   bool andou = false;
+
   switch (jogador->direction)
   {
   case UP:
@@ -209,68 +209,59 @@ int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames)
   // verifica se andou
   if (andou && frames % 10 == 0)
   {
-    ok = testaObjetosCaminho(jogador, mapa, objetos, y, x, verticalOffset, horizontalOffset);
+    ok = testaObjetosCaminho(jogador, mapa, objetos, linAtual, colAtual, verticalOffset, horizontalOffset);
   }
 
   return ok;
 }
 
-int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int y, int x, int vertical, int horizontal)
-{
-  int posX = x + horizontal;
-  int posY = y + horizontal;
+int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int linAtual, int colAtual, int vertical, int horizontal){
 
-  int *pos = &mapa[posY][posX];
+  int col = colAtual + horizontal;
+  int lin = linAtual + vertical;
+  int *pos = &mapa[lin][col];
 
-  if (*pos == TERRA || *pos == VAZIO)
-  {
+  if (*pos == TERRA || *pos == VAZIO){
     *pos = PLAYER;
-    mapa[y][x] = VAZIO;
+    mapa[linAtual][colAtual] = VAZIO;
     return 1;
   }
-  if (*pos == DIAMANTE)
-  {
-    coletaDiamante(jogador, objetos, mapa, posY, posX);
+  if (*pos == DIAMANTE){
+    coletaDiamante(jogador, objetos, mapa, lin, col);
     *pos = PLAYER;
-    mapa[y][x] = VAZIO;
+    mapa[linAtual][colAtual] = VAZIO;
     return 1;
   }
 
   return 0;
 }
 
-void mataPlayer(tPlayer *jogador, int x, int y, int **mapa)
+void mataPlayer(tPlayer *jogador, int lin, int col, int **mapa)
 {
   jogador->vidas--;
-  mapa[x][y] = EXPLOSAO;
+  mapa[lin][col] = EXPLOSAO;
 
-  jogador->posX = SPAWN_X;
-  jogador->posY = SPAWN_Y;
+  jogador->col = 3;
+  jogador->lin = 2;
 
-  int yAux, xAux;
-  yAux = ((SPAWN_Y / SIZE_OBJS) - MARGIN_TOP);
-  xAux = (SPAWN_X / SIZE_OBJS);
-
-  mapa[yAux][xAux] = PLAYER;
+  mapa[2][3] = PLAYER;
 }
 
-void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa, int posY, int posX)
-{
+void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa, int lin, int col){
   jogador->pontuacao += 10;
   jogador->diamantes += 1;
 
-  for (int i = 0; i < objetos->total; i++)
-  {
+  for (int i = 0; i < objetos->total; i++){
     rochedos *rochedoAtual = &objetos->rochedos[i];
-    if (objetos->rochedos[i].ativo && rochedoAtual->y == posY && rochedoAtual->x == posX)
+
+    if (objetos->rochedos[i].ativo && rochedoAtual->col == col && rochedoAtual->lin == lin)
       rochedoAtual->ativo = false;
   }
 
   // TODO AJUSTAS OBJETO COM ROCHAS PARA QUE SEJA DESTRUIDO DIAMANTE COLETADO
   if (objetos->qtDiamantes == jogador->diamantes)
-  {
     criaSaida(mapa);
-  }
+  
 }
 
 void criaSaida(int **mapa)
@@ -278,106 +269,112 @@ void criaSaida(int **mapa)
   mapa[16][38] = SAIDA;
 }
 
-void verificaPedras(int **mapa, tPlayer *jogador, tDirecao direcao, tObjetos *objetos, long frames)
+void verificaPedras(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames)
 {
+  int lin,col; 
 
-  int posX, posY;
   if (frames % 10 == 0)
   {
     for (int i = 0; i < objetos->total; i++)
     {
       rochedos *rochedoAtual = &objetos->rochedos[i];
 
+      // checa apenas para pedras que ainda nao foram destruidas
       if (rochedoAtual->ativo)
       {
-        posX = rochedoAtual->x;
-        posY = rochedoAtual->y;
 
-        // rolaRochas(mapa, objetos, posX, posY, i);
+        lin = rochedoAtual->lin;
+        col=rochedoAtual->col;
+        verificaRolamento(mapa, objetos, col, lin, i);
 
         // Testa se deve continuar caindo
         if (rochedoAtual->caindo == 1)
         {
           // Se a pedra esta caindo e o player esta em baixo mata ele
-          if (mapa[posX + 1][posY] == PLAYER)
+          if (mapa[lin + 1][col] == PLAYER)
           {
-            mataPlayer(jogador, posX + 1, posY, mapa);
+            mataPlayer(jogador, lin+1, col, mapa);
           }
 
-          if (mapa[posX + 1][posY] != VAZIO && mapa[posX + 1][posY] != PLAYER && mapa[posX + 1][posY])
-          {
+          if (mapa[lin + 1][col] != VAZIO && mapa[lin + 1][col] != PLAYER && mapa[lin + 1][col]){
             rochedoAtual->caindo = 0;
           }
         }
 
         // Desabamento normal
-        if (mapa[posX + 1][posY] == VAZIO && (posX + 1 < 21))
+        if (mapa[lin + 1][col] == VAZIO && (lin + 1 < 21))
         {
           rochedoAtual->caindo = 1;
-          rochedoAtual->x++;
-          mapa[posX + 1][posY] = rochedoAtual->tipo;
-          mapa[posX][posY] = VAZIO;
+          rochedoAtual->lin++;
+          mapa[lin + 1][col] = rochedoAtual->tipo;
+          mapa[lin][col] = VAZIO;
         }
       }
     }
   }
 }
 
-void rolaRochas(int **mapa, tObjetos *objetos, int posX, int posY, int rochaAtual)
-{
-  int pedraX = objetos->rochedos[rochaAtual].x;
-  int pedraY = objetos->rochedos[rochaAtual].y;
-  int tipo = objetos->rochedos[rochaAtual].tipo;
+int linhaEColunaValidas(int lin,int col){
+  if (lin > 0 && lin < TOTAL_LINHAS && col > 0 && col < TOTAL_COLUNAS)
+    return 1;
+  return 0; 
+}
 
-  if (mapa[posX + 1][posY + 1] == VAZIO && (posX + 1 < 21))
-  {
-    if (mapa[posX + 1][posY+1] == PEDRA || mapa[posX + 1][posY+1] == DIAMANTE)
-    {
-      mapa[posX][posY] = VAZIO;
-      mapa[posX + 1][posY + 1] = tipo;
-      objetos->rochedos[rochaAtual].caindo = 1;
-      objetos->rochedos[rochaAtual].x = posX + 1;
-      objetos->rochedos[rochaAtual].x = posY + 1;
-    }
-    if (mapa[posX - 1][posY-1] == PEDRA || mapa[posX - 1][posY-1] == DIAMANTE)
-    {
-      mapa[posX][posY] = VAZIO;
-      mapa[posX + 1][posY + 1] = tipo;
-      objetos->rochedos[rochaAtual].caindo = 1;
-      objetos->rochedos[rochaAtual].x = posX - 1;
-      objetos->rochedos[rochaAtual].x = posY - 1;
+void verificaRolamento(int **mapa, tObjetos *objetos, int col, int lin, int rochaAtual){
+  rochedos *rocha = &objetos->rochedos[rochaAtual]; 
+
+  int pedraX = rocha->lin;
+  int pedraY = rocha->col;
+  int tipo = rocha->tipo;
+  int direcao = 0; 
+  
+  if (lin > 0 && lin < TOTAL_LINHAS && col >0 && col < TOTAL_COLUNAS){
+    // verifica se esta sobre uma rocha
+    if (mapa[lin+1][col] == PEDRA || mapa[lin+1][col] == DIAMANTE){
+      // verifica rolamento para a direita
+      if (mapa[lin+1][col+1] == VAZIO && mapa[lin][col+1] == VAZIO){
+        direcao=1; 
+        rolaRocha(mapa,rocha,lin,col,direcao); 
+      }
+      // verifica o rolamento para esquerda
+      if (mapa[lin+1][col-1] == VAZIO && mapa[lin][col-1] == VAZIO){
+        direcao=-1; 
+        rolaRocha(mapa, rocha,lin,col,direcao);       
+      }
     }
   }
 }
 
-void atualizaPlayer(tPlayer *jogador)
-{
+void rolaRocha(int **mapa,rochedos *rocha,int lin,int col,int direcao){
+  mapa[lin][col] = VAZIO;
+  mapa[lin+1][col + direcao] = rocha->tipo;
+  
+  rocha->caindo = 1;
+  rocha->lin = lin + 1;
+  rocha->col = col + direcao; 
+}
+
+void atualizaPlayer(tPlayer *jogador){
+  
   // DECREMENTO/INCREMENTO EM RELACAO A VELOCIDADE
   if (jogador->direction == UP)
   {
-    printf("up");
-    jogador->posY -= jogador->vel;
+    jogador->lin -= jogador->vel;
     jogador->tired = 0;
   }
   if (jogador->direction == BOTTOM)
   {
-    printf("BOTTOM");
-
-    jogador->posY += jogador->vel;
+    jogador->lin += jogador->vel;
     jogador->tired = 0;
   }
   if (jogador->direction == LEFT)
   {
-    printf("LEFT");
-
-    jogador->posX -= jogador->vel;
+    jogador->col -= jogador->vel;
     jogador->tired = 0;
   }
   if (jogador->direction == RIGHT)
   {
-    printf("RIGHT");
-    
-    jogador->posX += jogador->vel;
+    jogador->col += jogador->vel;
     jogador->tired = 0;
   }
 
@@ -386,21 +383,20 @@ void atualizaPlayer(tPlayer *jogador)
 
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames)
 {
-  tDirecao oldDirection = jogador->direction;
+  int oldDirection = jogador->direction;
 
   // VERIFICA A DIRECAO E
   // VERIFICA SE NAO ESTA NAS BORDAS
   if (keys[ALLEGRO_KEY_UP] || keys[ALLEGRO_KEY_W])
   {
-    if ((jogador->posY - SIZE_OBJS - MARGIN_TOP) > 0)
-    {
+    if (jogador->lin > 0){
       jogador->direction = UP;
       jogador->tired++;
     }
   }
   else if (keys[ALLEGRO_KEY_DOWN] || keys[ALLEGRO_KEY_S])
   {
-    if (jogador->posY < HEIGHT - SIZE_OBJS - MARGIN_TOP)
+    if (jogador->lin < TOTAL_LINHAS)
     {
       jogador->direction = BOTTOM;
       jogador->tired++;
@@ -408,7 +404,7 @@ void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *joga
   }
   else if (keys[ALLEGRO_KEY_LEFT] || keys[ALLEGRO_KEY_A])
   {
-    if (jogador->posX > SIZE_OBJS)
+    if (jogador->col > 0)
     {
       jogador->direction = LEFT;
       jogador->tired++;
@@ -416,7 +412,7 @@ void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *joga
   }
   else if (keys[ALLEGRO_KEY_RIGHT] || keys[ALLEGRO_KEY_D])
   {
-    if (jogador->posX < WIDTH - 2 * SIZE_OBJS)
+    if (jogador->col < TOTAL_COLUNAS)
     {
       jogador->direction = RIGHT;
       jogador->tired++;

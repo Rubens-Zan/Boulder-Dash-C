@@ -15,8 +15,6 @@
 #define KEY_SEEN 1
 #define KEY_RELEASED 2
 
-#define SPAWN_X (3 * SIZE_OBJS)
-#define SPAWN_Y ((2 * SIZE_OBJS) + MARGIN_TOP)
 
 #define PATH_MAP_1 "resources/mapas/mapa1.txt"
 #define MIN_DIAMANTES 12
@@ -52,11 +50,11 @@ typedef struct tPlayer{
     ALLEGRO_BITMAP *animacaoDir[7];
     int pontuacao;
     int diamantes; 
-    tDirecao direction; 
+    int direction; 
     int animacaoAtual;
     int tired;
     int vivo,vidas;
-    int posX, posY;
+    int lin, col;
     int vel;
 } tPlayer;
 
@@ -91,7 +89,6 @@ typedef struct tNivel{
 }tNivel; 
 
 
-void rolaRochas(int **mapa,tObjetos *objetos, int posX,int posY, int rochaAtual);
 
 
 
@@ -100,16 +97,16 @@ void state_serve(tNivel *infoNivel);
 void state_play(tNivel *infoNivel);
 void state_end(tNivel *infoNivel);
 void state_close(tNivel *infoNivel);
-void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa, int posY,int posX);
+void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa, int lin,int col);
 
 int testaObjetosCaminho(tPlayer *jogador,int **mapa,tObjetos *objetos,int y,int x,int vertical,int horizontal);
 int testaMapa(int **mapa,tPlayer *jogador,tObjetos *objetos,long frames);
 void criaSaida(int **mapa); 
-
+void verificaRolamento(int **mapa,tObjetos *objetos, int col,int lin, int rochaAtual);
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames);
 void atualizaPlayer(tPlayer *jogador); 
-void verificaPedras(int **mapa, tPlayer *jogador, tDirecao direcao,tObjetos *objetos, long frames);
+void verificaPedras(int **mapa, tPlayer *jogador, int direcao,tObjetos *objetos, long frames);
 void mataPlayer(tPlayer *jogador,int x,int y, int **mapa);
-
+void rolaRocha(int **mapa,rochedos *rocha,int lin,int col,int direcao); 
 
 #endif

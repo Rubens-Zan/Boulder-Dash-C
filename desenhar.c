@@ -15,6 +15,7 @@ void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
   	for(j = 0;j < lin;j++){
   	  scaledI = (i * SIZE_OBJS)+ MARGIN_TOP;
   	  scaledJ = j * SIZE_OBJS;
+
   	  switch(mapa[i][j]){
   	  	case METAL:
   	  	  al_draw_scaled_bitmap(objetosMapa->metal, 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
@@ -65,25 +66,24 @@ void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
 void drawPlayer(tPlayer *jogador, int **mapa, tObjetos *obj, long frames){
 
   int offsetI, offsetJ; 
-  offsetJ = jogador->posX;
-  offsetI = jogador->posY;
-
+  offsetJ = SIZE_OBJS*jogador->col;
+  offsetI = (SIZE_OBJS*jogador->lin)+ MARGIN_TOP;
 
     switch (jogador->direction){
     case UP:
-        al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
+        al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, offsetJ, offsetI, SIZE_OBJS, SIZE_OBJS, 0);
         break;
     case BOTTOM:
-        al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
+        al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, offsetJ, offsetI, SIZE_OBJS, SIZE_OBJS, 0);
         break;
     case LEFT:
-        al_draw_scaled_bitmap(jogador->animacaoEsq[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
+        al_draw_scaled_bitmap(jogador->animacaoEsq[jogador->animacaoAtual], 0, 0, 15, 16, offsetJ, offsetI, SIZE_OBJS, SIZE_OBJS, 0);
         break;
     case RIGHT:
-        al_draw_scaled_bitmap(jogador->animacaoDir[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
+        al_draw_scaled_bitmap(jogador->animacaoDir[jogador->animacaoAtual], 0, 0, 15, 16, offsetJ, offsetI, SIZE_OBJS, SIZE_OBJS, 0);
         break;
     case STOP:
-        al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, jogador->posX, jogador->posY, SIZE_OBJS, SIZE_OBJS, 0);
+        al_draw_scaled_bitmap(jogador->animacaoParado[jogador->animacaoAtual], 0, 0, 15, 16, offsetJ, offsetI, SIZE_OBJS, SIZE_OBJS, 0);
         break;
     }
 }
@@ -108,7 +108,7 @@ void drawInstructions(tNivel *infoNivel)
     al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), 120, 100 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "antes que o tempo acabe. Cuidado com as");
     al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), 120, 120 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "pedras, elas podem cair em cima voce! ");
     al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), 120, 160 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "Utilize as setas do teclado para se movimentar");
-    al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), 120, 190 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "ou as teclas W,S,A,D");
+    al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), 120, 190 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "ou as teclas 0,S,A,D");
     al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), 120, 210 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "para finalizar o jogo pressione ESC.");
     al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), 120, 550, ALLEGRO_ALIGN_LEFT, "Jogo desenvolvido por Rubens Laszlo ");
     al_draw_textf(infoNivel->font, al_map_rgb(255, 255, 255), 120, 600, ALLEGRO_ALIGN_LEFT, "Abril de 2022.");

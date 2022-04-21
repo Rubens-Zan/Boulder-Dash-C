@@ -6,19 +6,8 @@
 #include "texturas.h"
 
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <time.h>
+// #include <time.h>
 #include <stdio.h>
-#include <allegro5/allegro_acodec.h>
-#include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/bitmap.h>
-#include <allegro5/bitmap_draw.h>
-#include <allegro5/keyboard.h>
-#include <allegro5/timer.h>
-#include <allegro5/color.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -29,6 +18,7 @@
 #define SCREEN_HEIGHT 768
 #define SIZE 40.0
 
+
 int **iniciaMapa(char *pathMapa, tObjetos *obj){
   FILE *arq;
   int **mapa, i, j, lin, col;
@@ -38,7 +28,7 @@ int **iniciaMapa(char *pathMapa, tObjetos *obj){
     exit(1);
   }
   fscanf(arq, "%d %d", &lin, &col);
-
+  
   // alocar matriz
   mapa = malloc(lin * sizeof(int *));
   mapa[0] = malloc(lin * col * sizeof(int));
@@ -85,8 +75,8 @@ void iniciaPedrasEDiamantes(int **mapa,tObjetos *objetos){
       int tipo = mapa[i][j];
       
   	  if(tipo == PEDRA || tipo == DIAMANTE){
-  	  	objetos->rochedos[pedraAux].x = i;
-  	    objetos->rochedos[pedraAux].y = j;
+  	  	objetos->rochedos[pedraAux].lin = i;
+  	    objetos->rochedos[pedraAux].col = j;
   	    objetos->rochedos[pedraAux].caindo = 0;
   	    objetos->rochedos[pedraAux].tipo =tipo;
         objetos->rochedos[pedraAux].ativo=true;
