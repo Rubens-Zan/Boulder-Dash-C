@@ -287,6 +287,7 @@ int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int lin
 
 // }
 
+// Funcoes para destruir coisas 
 void explodeEmVolta(int **mapa,tObjetos *objetos,int lin, int col, tAudio *sons){
 
   for (int i=-1;i<2;i++){
@@ -327,6 +328,23 @@ void destroiRocha(tObjetos *objetos, int **mapa, int lin, int col, tAudio *sons)
 
 }
 
+void mataMonstro(int **mapa,tObjetos *objetos,int lin,int col, tAudio *sons){
+  for (int i=0;i<objetos->qtMonstros;i++){
+    tMonstro *monstroAux = &objetos->monstros[0]; 
+
+    if (monstroAux->lin == lin && monstroAux->col == col){
+      monstroAux->ativo=0;
+      explodeEmVolta(mapa,objetos,lin,col,sons); 
+
+      if (monstroAux->tipo == BUTTERFLY){
+        mapa[monstroAux->lin][monstroAux->col]=DIAMANTE; 
+
+      }
+    }
+
+  }
+
+}
 
 // ACOES PLAYER
 void empurrarPedra(int **mapa,tObjetos *objetos,int direcao, int lin, int col, tAudio *sons){
@@ -451,6 +469,10 @@ void movimentaObjetos(int **mapa, tPlayer *jogador, int direcao, tObjetos *objet
             mataPlayer(jogador, lin+1, col, mapa,objetos,sons);
           }
 
+          if (mapa[lin+1][col] == BUTTERFLY){
+            mataMonstro(mapa,objetos,lin+1,col,sons);
+          }
+
           if (mapa[lin + 1][col] != VAZIO && mapa[lin + 1][col] != PLAYER && mapa[lin + 1][col]){
             rochedoAtual->caindo = 0;
           }
@@ -494,12 +516,11 @@ void movimentaMonstro(int **mapa, tMonstro *monstro){
   }
 
 
-  if (linhaEColunaValidas(monstro->lin+vertical, monstro->col+horizontal) && mapa[monstro->lin+vertical][monstro->col+horizontal] == VAZIO){
+  if (linhaEColunaValidas(monstro->lin+vertical, monstro->col+horizontal) && (mapa[monstro->lin+vertical][monstro->col+horizontal] == VAZIO || mapa[monstro->lin+vertical][monstro->col+horizontal] == PLAYER ) ){
+    mapa[monstro->lin][monstro->col] = VAZIO;
     mapa[monstro->lin+vertical][monstro->col+horizontal]= monstro->tipo;
     monstro->lin+=vertical;
     monstro->col+=horizontal;
-
-    mapa[monstro->lin][monstro->col] = VAZIO;
     
   }else{
     mudaDirecaoMonstro(monstro); 
@@ -507,7 +528,7 @@ void movimentaMonstro(int **mapa, tMonstro *monstro){
 }
 
 void mudaDirecaoMonstro(tMonstro *monstro){
-  if (monstro->tipo == BUTTERFLY){
+  if (monstro->tipo == FIREFLY){
     if (monstro->direcaoAtual == RIGHT){
       monstro->direcaoAtual = BOTTOM;
     }else if (monstro->direcaoAtual == BOTTOM){
@@ -516,6 +537,16 @@ void mudaDirecaoMonstro(tMonstro *monstro){
       monstro->direcaoAtual = UP;
     }else if (monstro->direcaoAtual == UP){
       monstro->direcaoAtual = RIGHT;
+    }
+  }else if (monstro->tipo == BUTTERFLY){
+    if (monstro->direcaoAtual == LEFT){
+      monstro->direcaoAtual = BOTTOM;
+    }else if (monstro->direcaoAtual == BOTTOM){
+      monstro->direcaoAtual = RIGHT;
+    }else if (monstro->direcaoAtual == RIGHT){
+      monstro->direcaoAtual = UP;
+    }else if (monstro->direcaoAtual == UP){
+      monstro->direcaoAtual = LEFT;
     }
   }
 }

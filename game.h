@@ -81,6 +81,8 @@ void state_play(tNivel *infoNivel);
 void state_end(tNivel *infoNivel);
 void state_close(tNivel *infoNivel);
 
+void mataMonstro(int **mapa,tObjetos *objetos,int lin,int col, tAudio *sons); 
+
 void movimentaMonstro(int **mapa, tMonstro *monstro);
 void mudaDirecaoMonstro(tMonstro *monstro); 
 int linhaEColunaValidas(int lin,int col);
