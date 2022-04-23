@@ -7,17 +7,18 @@
 tPlayer* inicia_jogador(ALLEGRO_BITMAP* sheet){
   tPlayer *jogador;
   jogador = malloc(sizeof(tPlayer));
+  
   if(jogador == NULL){
   	printf("Erro ao alocar memoria!\n");
   	exit(1);
   }
-  jogador->col = 3;
-  jogador->lin = 2;
+  
   jogador->vel = 1;
   jogador->animacaoAtual = jogador->pontuacao = jogador->diamantes = 0;
   jogador->tired = 0;
   jogador->vidas = 7; 
   jogador->vivo = 1;
+
   iniciaSpritesJogador(sheet, jogador);
   return jogador;
 }
@@ -38,27 +39,44 @@ void iniciaSpritesObjetos(ALLEGRO_BITMAP* sheet, tObjetos* obj){
 
   // array para efetuar animacao do diamante
   obj->diamante[0] = al_create_sub_bitmap(sheet, 0, 64, 15, 16);
-  obj->diamante[2] = al_create_sub_bitmap(sheet, 0, 80, 15, 16);
-  obj->diamante[4] = al_create_sub_bitmap(sheet, 0, 96, 15, 16);
-  obj->diamante[6] = al_create_sub_bitmap(sheet, 0, 112, 15, 16);
   obj->diamante[1] = al_create_sub_bitmap(sheet, 16, 64, 15, 16);
+  obj->diamante[2] = al_create_sub_bitmap(sheet, 0, 80, 15, 16);
   obj->diamante[3] = al_create_sub_bitmap(sheet, 16, 80, 15, 16);
+  obj->diamante[4] = al_create_sub_bitmap(sheet, 0, 96, 15, 16);
   obj->diamante[5] = al_create_sub_bitmap(sheet, 16, 96, 15, 16);
+  obj->diamante[6] = al_create_sub_bitmap(sheet, 0, 112, 15, 16);
   obj->diamante[7] = al_create_sub_bitmap(sheet, 16, 112, 15, 16);
+
+  obj->amoeba[0] = al_create_sub_bitmap(sheet, 64, 64, 15, 16);
+  obj->amoeba[1] = al_create_sub_bitmap(sheet, 80, 64, 15, 16);
+  obj->amoeba[2] = al_create_sub_bitmap(sheet, 64, 80, 15, 16);
+  obj->amoeba[3] = al_create_sub_bitmap(sheet, 80, 80, 15, 16);
+  obj->amoeba[4] = al_create_sub_bitmap(sheet, 64, 96, 15, 16);
+  obj->amoeba[5] = al_create_sub_bitmap(sheet, 80, 96, 15, 16);
+  obj->amoeba[6] = al_create_sub_bitmap(sheet, 64, 112, 15, 16);
+  obj->amoeba[7] = al_create_sub_bitmap(sheet, 80, 112, 15, 16);
+
+  obj->borboleta[0] = al_create_sub_bitmap(sheet, 96, 64, 15, 16);
+  obj->borboleta[1] = al_create_sub_bitmap(sheet, 96, 80, 15, 16);
+  obj->borboleta[2] = al_create_sub_bitmap(sheet, 96, 96, 15, 16);
+  obj->borboleta[3] = al_create_sub_bitmap(sheet, 96, 112, 15, 16);
+
+  obj->vagalume[0] = al_create_sub_bitmap(sheet, 80, 64, 15, 16);
+  obj->vagalume[1] = al_create_sub_bitmap(sheet, 80, 80, 15, 16);
+  obj->vagalume[2] = al_create_sub_bitmap(sheet, 80, 96, 15, 16);
+  obj->vagalume[3] = al_create_sub_bitmap(sheet, 80, 112, 15, 16);
+  
 }
 
 // INICIA SPRITES DO JOGADOR
 void iniciaSpritesJogador(ALLEGRO_BITMAP* sheet, tPlayer* jogador){
-  jogador->animacaoParado[0] = al_create_sub_bitmap(sheet, 0, 0, 15, 16);
-  for(int i = 1;i <= 6;i++)
+  for(int i = 0;i <= 6;i++)
     jogador->animacaoParado[i] = al_create_sub_bitmap(sheet, (16 * i), 0, 15, 16);	
 
-  jogador->animacaoEsq[0] = al_create_sub_bitmap(sheet, 0, 16, 15, 16);
-  for(int i = 1;i <= 6;i++)
+  for(int i = 0;i <= 6;i++)
     jogador->animacaoEsq[i] = al_create_sub_bitmap(sheet, (16 * i), 16, 15, 16);	
 
-  jogador->animacaoDir[0] = al_create_sub_bitmap(sheet, 0, 32, 15, 16);
-  for(int i = 1;i <= 6;i++)
+  for(int i = 0;i <= 6;i++)
     jogador->animacaoDir[i] = al_create_sub_bitmap(sheet, (16 * i), 32, 15, 16);
 }
 

@@ -22,29 +22,24 @@ unsigned char keys[ALLEGRO_KEY_MAX];
 
 long frames = 0;
 
-void testaAllegro(bool ok, char *descricao)
-{
+void testaAllegro(bool ok, char *descricao){
   if (ok)
     return;
   fprintf(stderr, "Não foi possivel inicializar %s\n", descricao);
   exit(1);
 }
 
-void inicializarAllegro(tNivel *infoNivel)
-{
+void inicializarAllegro(tNivel *infoNivel){
 
   testaAllegro(al_init(), "allegro");
   testaAllegro(al_install_keyboard(), "keyboard");
 
-  // infoNivel->timer = al_create_timer(1.0 / FRAMERATE);
-
   timer = al_create_timer(1.0 / FRAMERATE);
   testaAllegro(timer, "timer");
 
-  // infoNivel->queue = al_create_event_queue();
 
   queue = al_create_event_queue();
-  testaAllegro(queue, "queueeeee");
+  testaAllegro(queue, "queue");
 
   // Pega spritesheet
   testaAllegro(al_init_image_addon(), "image addon");
@@ -69,18 +64,50 @@ void inicializarAllegro(tNivel *infoNivel)
 
   testaAllegro(al_init_primitives_addon(), "primitives");
 
+  
   al_register_event_source(queue, al_get_keyboard_event_source());
   al_register_event_source(queue, al_get_display_event_source(disp));
   al_register_event_source(queue, al_get_timer_event_source(timer));
 }
 
-void state_init(tNivel *infoNivel){
+tAudio * iniciaAudio(){
+  tAudio *sons;
+  sons = malloc(sizeof(tAudio)); 
+  if (sons == NULL){
+    printf("Erro ao alocar memoria!\n");
+  	exit(1);
+  }
 
+  /* Sound samples, instances; basicly all necessary loading stuff */
+  sons->sound_walk_earth  = al_load_sample("resources/audios/walk_earth.ogg");
+  sons->sound_walk_empty = al_load_sample("resources/audios/walk_empty.ogg");
+  sons->sound_boulder = al_load_sample("resources/audios/bg_music.ogg");
+  sons->sound_diamond = al_load_sample("resources/audios/collect_diamond.ogg");
+  sons->sound_melody = al_load_sample("resources/audios/melody.ogg");
+
+  sons->walk_empty = al_create_sample_instance(sons->sound_walk_empty);
+  sons->walk_earth = al_create_sample_instance(sons->sound_walk_earth);
+  sons->boulder = al_create_sample_instance(sons->sound_boulder);
+  sons->collect_diamond = al_create_sample_instance(sons->sound_diamond);
+  sons->music = al_create_sample_instance(sons->sound_melody);
+
+  al_set_sample_instance_playmode(sons->music, ALLEGRO_PLAYMODE_LOOP);
+  al_attach_sample_instance_to_mixer(sons->walk_empty,al_get_default_mixer());
+  al_attach_sample_instance_to_mixer(sons->walk_earth,al_get_default_mixer());
+  al_attach_sample_instance_to_mixer(sons->boulder,al_get_default_mixer());
+  al_attach_sample_instance_to_mixer(sons->collect_diamond,al_get_default_mixer());
+  al_attach_sample_instance_to_mixer(sons->music,al_get_default_mixer());
+
+  return sons; 
+}
+
+void state_init(tNivel *infoNivel){
   inicializarAllegro(infoNivel);
   infoNivel->jogador = inicia_jogador(infoNivel->sheet);
   infoNivel->objetosMapa = iniciaObjetos(infoNivel->sheet);
-  infoNivel->mapa = iniciaMapa(PATH_MAP_1, infoNivel->objetosMapa);
-  infoNivel->relogio= 150; 
+  
+  infoNivel->mapa = iniciaMapa(PATH_MAP_1, infoNivel->objetosMapa,infoNivel->jogador);
+  infoNivel->relogio=150; 
   infoNivel->state = JOGANDO;
 }
 
@@ -123,12 +150,11 @@ void state_serve(tNivel *infoNivel)
   }
 }
 
-void state_play(tNivel *infoNivel)
-{
+void state_play(tNivel *infoNivel){
   bool done = false;
   bool redraw = true;
   long frames = 0;
-  int morreu = 0, ganhou = 0;
+  int morreu,ganhou = 0;
   al_flush_event_queue(queue);
   memset(keys, 0, sizeof(keys));
   al_start_timer(timer);
@@ -141,8 +167,8 @@ void state_play(tNivel *infoNivel)
     {
     case ALLEGRO_EVENT_TIMER:
       verificaEntrada(keys, &done, redraw, infoNivel->jogador, frames);
-      verificaPedras(infoNivel->mapa, infoNivel->jogador, infoNivel->jogador->direction, infoNivel->objetosMapa, frames);
-      if (testaMapa(infoNivel->mapa, infoNivel->jogador, infoNivel->objetosMapa, frames))
+      movimentaObjetos(infoNivel->mapa, infoNivel->jogador, infoNivel->jogador->direction, infoNivel->objetosMapa, frames, infoNivel->sonsJogo);
+      if (testaMapa(infoNivel->mapa, infoNivel->jogador, infoNivel->objetosMapa, frames, infoNivel->sonsJogo))
         atualizaPlayer(infoNivel->jogador);
       if (frames % 60 == 0 && infoNivel->jogador->vivo && infoNivel->relogio > 0){
         infoNivel->relogio--;
@@ -177,7 +203,7 @@ void state_play(tNivel *infoNivel)
   }
 }
 
-int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames)
+int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames, tAudio *sons)
 {
   int colAtual, linAtual, horizontalOffset, verticalOffset, ok;
   // Coordenadas do personagem dentro do mapa
@@ -209,73 +235,127 @@ int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames)
   // verifica se andou
   if (andou && frames % 10 == 0)
   {
-    ok = testaObjetosCaminho(jogador, mapa, objetos, linAtual, colAtual, verticalOffset, horizontalOffset);
+    ok = testaObjetosCaminho(jogador, mapa, objetos, linAtual, colAtual, verticalOffset, horizontalOffset,sons,frames);
   }
 
   return ok;
 }
 
-int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int linAtual, int colAtual, int vertical, int horizontal){
+int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int linAtual, int colAtual, int vertical, int horizontal, tAudio *sons,long frames){
 
   int col = colAtual + horizontal;
   int lin = linAtual + vertical;
   int *pos = &mapa[lin][col];
-
-  if (*pos == TERRA || *pos == VAZIO){
+  
+  if (*pos == VAZIO){
     *pos = PLAYER;
     mapa[linAtual][colAtual] = VAZIO;
+    // al_play_sample_instance(sons->walk_empty);
     return 1;
   }
-  if (*pos == DIAMANTE){
-    coletaDiamante(jogador, objetos, mapa, lin, col);
+  if (*pos == TERRA ){
     *pos = PLAYER;
     mapa[linAtual][colAtual] = VAZIO;
+
+    // al_play_sample_instance(sons->walk_earth);
     return 1;
+  }
+
+  if (*pos == DIAMANTE){
+    destroiRocha(objetos, mapa, lin, col,sons);
+    jogador->pontuacao += 10;
+    jogador->diamantes += 1;
+    *pos = PLAYER;
+    mapa[linAtual][colAtual] = VAZIO;
+
+    if (objetos->qtDiamantes == jogador->diamantes)
+      criaSaida(mapa);
+    return 1;
+  }
+  if (*pos == PEDRA){
+    if (mapa[linAtual][colAtual+2*horizontal] == VAZIO && frames % 20 == 0){
+      empurrarPedra(mapa, objetos, horizontal,lin,col, sons);
+      *pos = PLAYER;
+      mapa[linAtual][colAtual] = VAZIO;
+      mapa[linAtual][colAtual+2*horizontal] = PEDRA; 
+
+      return 1; 
+    }
+    
+  }
+
+  if (*pos == SAIDA){
+    printf("ok ganhou "); 
   }
 
   return 0;
 }
 
-void mataPlayer(tPlayer *jogador, int lin, int col, int **mapa)
-{
-  jogador->vidas--;
-  mapa[lin][col] = EXPLOSAO;
+// void proxNivel(){
 
-  jogador->col = 3;
-  jogador->lin = 2;
+// }
 
-  mapa[2][3] = PLAYER;
+void explodeEmVolta(int **mapa,tObjetos *objetos,int lin, int col, tAudio *sons){
+
+  for (int i=-1;i<2;i++){
+    for (int j=-1;j<2;j++){
+      if (linhaEColunaValidas(lin+i,col+j) && mapa[lin+i][col+j] != METAL && mapa[lin+i][col+j] != DIAMANTE){
+        if (mapa[lin+i][col+j] == PEDRA){
+          destroiRocha(objetos,mapa,lin+i,col+j,sons); 
+        }
+        mapa[lin+i][col+j] = EXPLOSAO;
+
+
+      }
+    }
+  }
+
 }
 
-void coletaDiamante(tPlayer *jogador, tObjetos *objetos, int **mapa, int lin, int col){
-  jogador->pontuacao += 10;
-  jogador->diamantes += 1;
+void mataPlayer(tPlayer *jogador, int lin, int col, int **mapa, tObjetos *objetos, tAudio *sons){
+  jogador->vidas--;
 
-  for (int i = 0; i < objetos->total; i++){
+  explodeEmVolta(mapa, objetos,lin,col,sons); 
+
+  jogador->col = jogador->colInicial;
+  jogador->lin = jogador->linInicial; 
+
+  mapa[jogador->linInicial][jogador->colInicial] = PLAYER;
+}
+
+void destroiRocha(tObjetos *objetos, int **mapa, int lin, int col, tAudio *sons){
+  // al_play_sample_instance(sons->collect_diamond);
+
+  for (int i = 0; i < objetos->totalRochas; i++){
     rochedos *rochedoAtual = &objetos->rochedos[i];
 
-    if (objetos->rochedos[i].ativo && rochedoAtual->col == col && rochedoAtual->lin == lin)
+    if (rochedoAtual->ativo && rochedoAtual->col == col && rochedoAtual->lin == lin)
       rochedoAtual->ativo = false;
   }
 
-  // TODO AJUSTAS OBJETO COM ROCHAS PARA QUE SEJA DESTRUIDO DIAMANTE COLETADO
-  if (objetos->qtDiamantes == jogador->diamantes)
-    criaSaida(mapa);
-  
 }
 
-void criaSaida(int **mapa)
-{
+void empurrarPedra(int **mapa,tObjetos *objetos,int direcao, int lin, int col, tAudio *sons){
+  for (int i = 0; i < objetos->totalRochas; i++){
+    rochedos *rochedoAtual = &objetos->rochedos[i];
+
+    if (rochedoAtual->ativo && rochedoAtual->col == col && rochedoAtual->lin == lin){
+      rochedoAtual->col += direcao;
+    }
+    
+  }
+}
+
+void criaSaida(int **mapa){
   mapa[16][38] = SAIDA;
 }
 
-void verificaPedras(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames)
-{
+void movimentaObjetos(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames, tAudio *sons){
   int lin,col; 
 
   if (frames % 10 == 0)
   {
-    for (int i = 0; i < objetos->total; i++)
+    for (int i = 0; i < objetos->totalRochas; i++)
     {
       rochedos *rochedoAtual = &objetos->rochedos[i];
 
@@ -288,12 +368,10 @@ void verificaPedras(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos
         verificaRolamento(mapa, objetos, col, lin, i);
 
         // Testa se deve continuar caindo
-        if (rochedoAtual->caindo == 1)
-        {
+        if (rochedoAtual->caindo == 1){
           // Se a pedra esta caindo e o player esta em baixo mata ele
-          if (mapa[lin + 1][col] == PLAYER)
-          {
-            mataPlayer(jogador, lin+1, col, mapa);
+          if (mapa[lin + 1][col] == PLAYER){
+            mataPlayer(jogador, lin+1, col, mapa,objetos,sons);
           }
 
           if (mapa[lin + 1][col] != VAZIO && mapa[lin + 1][col] != PLAYER && mapa[lin + 1][col]){
@@ -315,7 +393,7 @@ void verificaPedras(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos
 }
 
 int linhaEColunaValidas(int lin,int col){
-  if (lin > 0 && lin < TOTAL_LINHAS && col > 0 && col < TOTAL_COLUNAS)
+  if (lin > 0 && lin <= TOTAL_LINHAS && col > 0 && col <= TOTAL_COLUNAS)
     return 1;
   return 0; 
 }

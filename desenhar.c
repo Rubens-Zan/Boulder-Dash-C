@@ -36,31 +36,47 @@ void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin){
           al_draw_scaled_bitmap(objetosMapa->saida, 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           break;
         case DIAMANTE:
-          //Reseta frames do diamante se necessário e faz animação
-          if(frames % 25 == 0)
-            objetosMapa->animacao++;
-          if(objetosMapa->animacao == 8)
-          	objetosMapa->animacao = 0;
-          al_draw_scaled_bitmap(objetosMapa->diamante[objetosMapa->animacao], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->diamante[objetosMapa->animacaoLonga], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           break;
         case EXPLOSAO:
-          al_draw_scaled_bitmap(objetosMapa->explosao[1], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->explosao[0], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           if(frames % 10 == 0)
             mapa[i][j] = EXPLOSAO2;
           break;
         case EXPLOSAO2:
-          al_draw_scaled_bitmap(objetosMapa->explosao[2], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->explosao[1], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           if(frames % 10 == 0)
             mapa[i][j] = EXPLOSAO3;
           break;
         case EXPLOSAO3:
-          al_draw_scaled_bitmap(objetosMapa->explosao[3], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
+          al_draw_scaled_bitmap(objetosMapa->explosao[2], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
           if(frames % 10 == 0)
             mapa[i][j] = VAZIO;
           break;
+        case FIREFLY:
+          al_draw_scaled_bitmap(objetosMapa->vagalume[objetosMapa->animacaoCurta], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case BUTTERFLY:
+          al_draw_scaled_bitmap(objetosMapa->borboleta[objetosMapa->animacaoCurta], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
+          break;
+        case AMOEBA:
+          al_draw_scaled_bitmap(objetosMapa->amoeba[objetosMapa->animacaoLonga], 0, 0, 15, 16, scaledJ, scaledI, SIZE_OBJS, SIZE_OBJS, 0);
+          break; 
   	  }
+
   	}
   } 
+
+  //Reseta frames do diamante se necessário e faz animação
+  if(frames % 10 == 0){
+    objetosMapa->animacaoCurta++;
+    objetosMapa->animacaoLonga++;
+  }
+    
+  if(objetosMapa->animacaoLonga == 8)
+    objetosMapa->animacaoLonga = 0;
+  if(objetosMapa->animacaoCurta == 4)
+    objetosMapa->animacaoCurta = 0;
 }
 
 void drawPlayer(tPlayer *jogador, int **mapa, tObjetos *obj, long frames){

@@ -19,7 +19,7 @@
 #define SIZE 40.0
 
 
-int **iniciaMapa(char *pathMapa, tObjetos *obj){
+int **iniciaMapa(char *pathMapa, tObjetos *obj, tPlayer *jogador){
   FILE *arq;
   int **mapa, i, j, lin, col;
   arq = fopen(pathMapa, "r");
@@ -35,18 +35,33 @@ int **iniciaMapa(char *pathMapa, tObjetos *obj){
   for (i = 0; i < lin; i++)
     mapa[i] = mapa[0] + i * col;
 
-  int qtPedras = 0, qtDiamantes = 0;
+  int qtPedras = 0, qtDiamantes = 0, totalObjs = 0, qtBorboletas = 0;
   for (i = 0; i < lin; i++)
     for (j = 0; j < col; j++){
       fscanf(arq, "%d", &mapa[i][j]);
-      if (mapa[i][j] == PEDRA)
+      if (mapa[i][j] == PEDRA){
+        totalObjs++;
+
         qtPedras++;
-      if (mapa[i][j] == DIAMANTE)
+      }
+      if (mapa[i][j] == DIAMANTE){
+        totalObjs++;
+
         qtDiamantes++;
+      }
+      if (mapa[i][j] == BUTTERFLY){
+        qtDiamantes++;
+      }
+      if (mapa[i][j] == PLAYER){
+        jogador->linInicial=i;
+        jogador->colInicial=j;
+        jogador->lin=i;
+        jogador->col=j;
+      }
     }
   obj->qtPedras = qtPedras;
   obj->qtDiamantes = qtDiamantes;
-  obj->total = qtDiamantes+qtPedras; 
+  obj->totalRochas = totalObjs; 
   
   obj->rochedos = malloc((qtPedras + qtDiamantes) * sizeof(rochedos));
   iniciaPedrasEDiamantes(mapa,obj); 
@@ -62,7 +77,8 @@ tObjetos* iniciaObjetos(ALLEGRO_BITMAP* sheet){
     exit(1);
   }
   iniciaSpritesObjetos(sheet, obj);
-  obj->animacao = 0;
+  obj->animacaoCurta = 0;
+  obj->animacaoLonga = 0; 
 }
 
 void iniciaPedrasEDiamantes(int **mapa,tObjetos *objetos){
@@ -88,15 +104,17 @@ void iniciaPedrasEDiamantes(int **mapa,tObjetos *objetos){
 
 }
 
-
-
 void destroi_mapa(int **mapa){
   free(mapa[0]);
   free(mapa);
 }
 
-void destroi_objetos(tObjetos *obj){
-  free(obj->pedra);
-  free(obj->diamante - 8);
-  free(obj);
-}
+// void destroi_objetos(tObjetos *obj){
+//   free(obj->pedra);
+//   free(obj->diamante - 8);
+//   free(obj->borboleta -8);
+//   free(obj->explosao - 5); 
+//   free(obj->vagalume - 8); 
+
+//   free(obj);
+// }

@@ -1,23 +1,23 @@
-22 40               Width and height. All caves in BD1 were 40x22
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-Wdddrrddrddr.rrrrdrdd.ddrddrddddrrdrdrrW
-Wdrrdddrrrdrddrrrrrrdrrd.drdrrrrdrddrrdW
-Wddrrrrrrrdrddrr.rrrdrrdddrdr.rrdrrrddrW
-Wrrdrddrrrrrrdrrddd..ddrrdrddrrdrdd.rrdW
-Wrrdrddrrrrrrdrrd.drdrrrrdrdrdrrddrrdrdW
-Wdddrrdrd.ddrrddrrdddrrdrdrrr.drddrrdrdW
-Wrrrrrdrrdddd..rrrdrdd.rdrddr.rrddddddrW
-Wdrddwwwwwww.wwwwwdrrrrdrwwwwww.wwwwwwrW
-Wd.dd             rddrrrd             rW
-Wdrdr  XP         rddrrrd             rW
-Wdrrd             r.rrddr             rW
-Wdrrd             ddddrdr             dW
-Wrddd             drrd.dr             dW
-Wrrrr             drrddrr             rW
-Wdrdd             .rdrrdr             rW
-Wdrdd            wwwwwwwww            rW
-Wrrrd                                 rW
-Wrrrd             dd.rdrd             rW
-Wddrr             rrrdrdd             rW
-Wdd..wwwwwwwwwwwwwdrrrdddwwwwwwwwwwwwwdW
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+22 40
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 4 4 4 3 3 4 4 3 4 4 3 1 3 3 3 3 4 3 4 4 1 4 4 3 4 4 3 4 4 4 4 3 3 4 3 4 3 3 0
+0 4 3 3 4 4 4 3 3 3 4 3 4 4 3 3 3 3 3 3 4 3 3 4 1 4 3 4 3 3 3 3 4 3 4 4 3 3 4 0
+0 4 4 3 3 3 3 3 3 3 4 3 4 4 3 3 1 3 3 3 4 3 3 4 4 4 3 4 3 1 3 3 4 3 3 3 4 4 3 0
+0 3 3 4 3 4 4 3 3 3 3 3 3 4 3 3 4 4 4 1 1 4 4 3 3 4 3 4 4 3 3 4 3 4 4 1 3 3 4 0
+0 3 3 4 3 4 4 3 3 3 3 3 3 4 3 3 4 1 4 3 4 3 3 3 3 4 3 4 3 4 3 3 4 4 3 3 4 3 4 0
+0 4 4 4 3 3 4 3 4 1 4 4 3 3 4 4 3 3 4 4 4 3 3 4 3 4 3 3 3 1 4 3 4 4 3 3 4 3 4 0
+0 3 3 3 3 3 4 3 3 4 4 4 4 1 1 3 3 3 4 3 4 4 1 3 4 3 4 4 3 1 3 3 4 4 4 4 4 4 3 0
+0 4 3 4 4 2 2 2 2 2 2 2 1 2 2 2 2 2 4 3 3 3 3 4 3 2 2 2 2 2 2 1 2 2 2 2 2 2 3 0
+0 4 1 4 4 5 5 5 5 5 5 5 5 5 5 5 5 5 3 4 4 3 3 3 4 5 5 5 5 5 5 5 5 5 5 5 5 5 3 0
+0 4 3 4 3 5 5 10 6 5 5 5 5 5 5 5 5 5 3 4 4 3 3 3 4 5 5 5 5 5 5 5 5 5 5 5 5 5 3 0
+0 4 3 3 4 5 5 5 5 5 5 5 5 5 5 5 5 5 3 1 3 3 4 4 3 5 5 5 5 5 5 5 5 5 5 5 5 5 3 0
+0 4 3 3 4 5 5 5 5 5 5 5 5 5 5 5 5 5 4 4 4 4 3 4 3 5 5 5 5 5 5 5 5 5 5 5 5 5 4 0
+0 3 4 4 4 5 5 5 5 5 5 5 5 5 5 5 5 5 4 3 3 4 1 4 3 5 5 5 5 5 5 5 5 5 5 5 5 5 4 0
+0 3 3 3 3 5 5 5 5 5 5 5 5 5 5 5 5 5 4 3 3 4 4 3 3 5 5 5 5 5 5 5 5 5 5 5 5 5 3 0
+0 4 3 4 4 5 5 5 5 5 5 5 5 5 5 5 5 5 1 3 4 3 3 4 3 5 5 5 5 5 5 5 5 5 5 5 5 5 3 0
+0 4 3 4 4 5 5 5 5 5 5 5 5 5 5 5 5 2 2 2 2 2 2 2 2 2 5 5 5 5 5 5 5 5 5 5 5 5 3 0
+0 3 3 3 4 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 3 0
+0 3 3 3 4 5 5 5 5 5 5 5 5 5 5 5 5 5 4 4 1 3 4 3 4 5 5 5 5 5 5 5 5 5 5 5 5 5 3 0
+0 4 4 3 3 5 5 5 5 5 5 5 5 5 5 5 5 5 3 3 3 4 3 4 4 5 5 5 5 5 5 5 5 5 5 5 5 5 3 0
+0 4 4 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 4 3 3 3 4 4 4 2 2 2 2 2 2 2 2 2 2 2 2 2 4 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
