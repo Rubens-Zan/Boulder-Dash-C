@@ -101,6 +101,7 @@ tAudio * iniciaAudio(){
   return sons; 
 }
 
+// ESTADOS DO JOGO
 void state_init(tNivel *infoNivel){
   inicializarAllegro(infoNivel);
   infoNivel->jogador = inicia_jogador(infoNivel->sheet);
@@ -111,18 +112,15 @@ void state_init(tNivel *infoNivel){
   infoNivel->state = JOGANDO;
 }
 
-void state_serve(tNivel *infoNivel)
-{
+void state_serve(tNivel *infoNivel){
   bool done = false;
   al_flush_event_queue(queue);
-  while (1)
-  {
+  while (1){
     drawInstructions(infoNivel);
     al_wait_for_event(queue, &event);
     if (al_is_event_queue_empty(queue))
       drawInstructions(infoNivel);
-    switch (event.type)
-    {
+    switch (event.type){
     case ALLEGRO_EVENT_KEY_DOWN:
       keys[event.keyboard.keycode] = KEY_SEEN | KEY_RELEASED;
       break;
@@ -131,16 +129,14 @@ void state_serve(tNivel *infoNivel)
       break;
     }
     // Caso H/F1 seja pressionado, volta ao jogo
-    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1])
-    {
+    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1]){
       keys[ALLEGRO_KEY_H] = 0;
       keys[ALLEGRO_KEY_F1] = 0;
       infoNivel->state = JOGANDO;
       done = true;
     }
     // Caso ESC seja pressionado, fim partida
-    else if (keys[ALLEGRO_KEY_ESCAPE])
-    {
+    else if (keys[ALLEGRO_KEY_ESCAPE]){
       keys[ALLEGRO_KEY_ESCAPE] = 0;
       infoNivel->state = FIMPART;
       done = true;
@@ -159,12 +155,10 @@ void state_play(tNivel *infoNivel){
   memset(keys, 0, sizeof(keys));
   al_start_timer(timer);
 
-  while (1)
-  {
+  while (1){
     al_wait_for_event(queue, &event);
 
-    switch (event.type)
-    {
+    switch (event.type){
     case ALLEGRO_EVENT_TIMER:
       verificaEntrada(keys, &done, redraw, infoNivel->jogador, frames);
       movimentaObjetos(infoNivel->mapa, infoNivel->jogador, infoNivel->jogador->direction, infoNivel->objetosMapa, frames, infoNivel->sonsJogo);
@@ -185,8 +179,7 @@ void state_play(tNivel *infoNivel){
       break;
     }
     // Vai para menu de ajuda
-    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1])
-    {
+    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1]){
       keys[ALLEGRO_KEY_H] = 0;
       keys[ALLEGRO_KEY_F1] = 0;
       infoNivel->state = SERVINDO;
@@ -196,15 +189,14 @@ void state_play(tNivel *infoNivel){
       draw(redraw, frames, infoNivel);
 
     if (done)
-    {
       break;
-    }
+    
     frames++;
   }
 }
 
-int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames, tAudio *sons)
-{
+
+int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames, tAudio *sons){
   int colAtual, linAtual, horizontalOffset, verticalOffset, ok;
   // Coordenadas do personagem dentro do mapa
   colAtual = jogador->col;
@@ -335,6 +327,8 @@ void destroiRocha(tObjetos *objetos, int **mapa, int lin, int col, tAudio *sons)
 
 }
 
+
+// ACOES PLAYER
 void empurrarPedra(int **mapa,tObjetos *objetos,int direcao, int lin, int col, tAudio *sons){
   for (int i = 0; i < objetos->totalRochas; i++){
     rochedos *rochedoAtual = &objetos->rochedos[i];
@@ -344,92 +338,6 @@ void empurrarPedra(int **mapa,tObjetos *objetos,int direcao, int lin, int col, t
     }
     
   }
-}
-
-void criaSaida(int **mapa){
-  mapa[16][38] = SAIDA;
-}
-
-void movimentaObjetos(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames, tAudio *sons){
-  int lin,col; 
-
-  if (frames % 10 == 0)
-  {
-    for (int i = 0; i < objetos->totalRochas; i++)
-    {
-      rochedos *rochedoAtual = &objetos->rochedos[i];
-
-      // checa apenas para pedras que ainda nao foram destruidas
-      if (rochedoAtual->ativo)
-      {
-
-        lin = rochedoAtual->lin;
-        col=rochedoAtual->col;
-        verificaRolamento(mapa, objetos, col, lin, i);
-
-        // Testa se deve continuar caindo
-        if (rochedoAtual->caindo == 1){
-          // Se a pedra esta caindo e o player esta em baixo mata ele
-          if (mapa[lin + 1][col] == PLAYER){
-            mataPlayer(jogador, lin+1, col, mapa,objetos,sons);
-          }
-
-          if (mapa[lin + 1][col] != VAZIO && mapa[lin + 1][col] != PLAYER && mapa[lin + 1][col]){
-            rochedoAtual->caindo = 0;
-          }
-        }
-
-        // Desabamento normal
-        if (mapa[lin + 1][col] == VAZIO && (lin + 1 < 21))
-        {
-          rochedoAtual->caindo = 1;
-          rochedoAtual->lin++;
-          mapa[lin + 1][col] = rochedoAtual->tipo;
-          mapa[lin][col] = VAZIO;
-        }
-      }
-    }
-  }
-}
-
-int linhaEColunaValidas(int lin,int col){
-  if (lin > 0 && lin <= TOTAL_LINHAS && col > 0 && col <= TOTAL_COLUNAS)
-    return 1;
-  return 0; 
-}
-
-void verificaRolamento(int **mapa, tObjetos *objetos, int col, int lin, int rochaAtual){
-  rochedos *rocha = &objetos->rochedos[rochaAtual]; 
-
-  int pedraX = rocha->lin;
-  int pedraY = rocha->col;
-  int tipo = rocha->tipo;
-  int direcao = 0; 
-  
-  if (lin > 0 && lin < TOTAL_LINHAS && col >0 && col < TOTAL_COLUNAS){
-    // verifica se esta sobre uma rocha
-    if (mapa[lin+1][col] == PEDRA || mapa[lin+1][col] == DIAMANTE){
-      // verifica rolamento para a direita
-      if (mapa[lin+1][col+1] == VAZIO && mapa[lin][col+1] == VAZIO){
-        direcao=1; 
-        rolaRocha(mapa,rocha,lin,col,direcao); 
-      }
-      // verifica o rolamento para esquerda
-      if (mapa[lin+1][col-1] == VAZIO && mapa[lin][col-1] == VAZIO){
-        direcao=-1; 
-        rolaRocha(mapa, rocha,lin,col,direcao);       
-      }
-    }
-  }
-}
-
-void rolaRocha(int **mapa,rochedos *rocha,int lin,int col,int direcao){
-  mapa[lin][col] = VAZIO;
-  mapa[lin+1][col + direcao] = rocha->tipo;
-  
-  rocha->caindo = 1;
-  rocha->lin = lin + 1;
-  rocha->col = col + direcao; 
 }
 
 void atualizaPlayer(tPlayer *jogador){
@@ -459,8 +367,7 @@ void atualizaPlayer(tPlayer *jogador){
   jogador->direction = STOP;
 }
 
-void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames)
-{
+void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames){
   int oldDirection = jogador->direction;
 
   // VERIFICA A DIRECAO E
@@ -515,4 +422,140 @@ void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *joga
   }
 
   redraw = true;
+}
+
+
+void criaSaida(int **mapa){
+  mapa[16][38] = SAIDA;
+}
+
+// FUNCOES MOVIMENTAR JOGO
+void movimentaObjetos(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames, tAudio *sons){
+  int lin,col; 
+
+  if (frames % 10 == 0){
+    for (int i = 0; i < objetos->totalRochas; i++){
+      rochedos *rochedoAtual = &objetos->rochedos[i];
+
+      // checa apenas para pedras que ainda nao foram destruidas
+      if (rochedoAtual->ativo){
+
+        lin = rochedoAtual->lin;
+        col=rochedoAtual->col;
+        verificaRolamento(mapa, objetos, col, lin, i);
+
+        // Testa se deve continuar caindo
+        if (rochedoAtual->caindo == 1){
+          // Se a pedra esta caindo e o player esta em baixo mata ele
+          if (mapa[lin + 1][col] == PLAYER){
+            mataPlayer(jogador, lin+1, col, mapa,objetos,sons);
+          }
+
+          if (mapa[lin + 1][col] != VAZIO && mapa[lin + 1][col] != PLAYER && mapa[lin + 1][col]){
+            rochedoAtual->caindo = 0;
+          }
+        }
+
+        // Desabamento normal
+        if (mapa[lin + 1][col] == VAZIO && (lin + 1 < 21))
+        {
+          rochedoAtual->caindo = 1;
+          rochedoAtual->lin++;
+          mapa[lin + 1][col] = rochedoAtual->tipo;
+          mapa[lin][col] = VAZIO;
+        }
+      }
+    }
+
+    for (int k = 0; k < objetos->qtMonstros; k++){
+      tMonstro *monstroAtual = &objetos->monstros[k];
+
+      // checa apenas para pedras que ainda nao foram destruidas
+      if (monstroAtual->ativo){
+        if (monstroAtual->tipo == BUTTERFLY || monstroAtual->tipo == FIREFLY){
+          movimentaMonstro(mapa,monstroAtual); 
+        } 
+      }
+    }
+  }
+
+}
+
+void movimentaMonstro(int **mapa, tMonstro *monstro){
+  int horizontal =0,vertical = 0;
+  if (monstro->direcaoAtual == RIGHT){
+    horizontal=1;
+  }else if (monstro->direcaoAtual == LEFT){
+    horizontal=-1;
+  }else if(monstro->direcaoAtual == BOTTOM){
+    vertical=1;
+  }else if(monstro->direcaoAtual == UP){
+    vertical=-1;
+  }
+
+
+  if (linhaEColunaValidas(monstro->lin+vertical, monstro->col+horizontal) && mapa[monstro->lin+vertical][monstro->col+horizontal] == VAZIO){
+    mapa[monstro->lin+vertical][monstro->col+horizontal]= monstro->tipo;
+    monstro->lin+=vertical;
+    monstro->col+=horizontal;
+
+    mapa[monstro->lin][monstro->col] = VAZIO;
+    
+  }else{
+    mudaDirecaoMonstro(monstro); 
+  }
+}
+
+void mudaDirecaoMonstro(tMonstro *monstro){
+  if (monstro->tipo == BUTTERFLY){
+    if (monstro->direcaoAtual == RIGHT){
+      monstro->direcaoAtual = BOTTOM;
+    }else if (monstro->direcaoAtual == BOTTOM){
+      monstro->direcaoAtual = LEFT;
+    }else if (monstro->direcaoAtual == LEFT){
+      monstro->direcaoAtual = UP;
+    }else if (monstro->direcaoAtual == UP){
+      monstro->direcaoAtual = RIGHT;
+    }
+  }
+}
+
+void verificaRolamento(int **mapa, tObjetos *objetos, int col, int lin, int rochaAtual){
+  rochedos *rocha = &objetos->rochedos[rochaAtual]; 
+
+  int pedraX = rocha->lin;
+  int pedraY = rocha->col;
+  int tipo = rocha->tipo;
+  int direcao = 0; 
+  
+  if (lin > 0 && lin < TOTAL_LINHAS && col >0 && col < TOTAL_COLUNAS){
+    // verifica se esta sobre uma rocha
+    if (mapa[lin+1][col] == PEDRA || mapa[lin+1][col] == DIAMANTE){
+      // verifica rolamento para a direita
+      if (mapa[lin+1][col+1] == VAZIO && mapa[lin][col+1] == VAZIO){
+        direcao=1; 
+        rolaRocha(mapa,rocha,lin,col,direcao); 
+      }
+      // verifica o rolamento para esquerda
+      if (mapa[lin+1][col-1] == VAZIO && mapa[lin][col-1] == VAZIO){
+        direcao=-1; 
+        rolaRocha(mapa, rocha,lin,col,direcao);       
+      }
+    }
+  }
+}
+
+void rolaRocha(int **mapa,rochedos *rocha,int lin,int col,int direcao){
+  mapa[lin][col] = VAZIO;
+  mapa[lin+1][col + direcao] = rocha->tipo;
+  
+  rocha->caindo = 1;
+  rocha->lin = lin + 1;
+  rocha->col = col + direcao; 
+}
+
+int linhaEColunaValidas(int lin,int col){
+  if (lin > 0 && lin <= TOTAL_LINHAS && col > 0 && col <= TOTAL_COLUNAS)
+    return 1;
+  return 0; 
 }

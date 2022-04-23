@@ -35,24 +35,29 @@ int **iniciaMapa(char *pathMapa, tObjetos *obj, tPlayer *jogador){
   for (i = 0; i < lin; i++)
     mapa[i] = mapa[0] + i * col;
 
-  int qtPedras = 0, qtDiamantes = 0, totalObjs = 0, qtBorboletas = 0;
+  int qtPedras = 0, qtDiamantes = 0, totalObjs = 0, qtAmoebas=0,qtVagalumes =0, qtBorboletas = 0;
+
   for (i = 0; i < lin; i++)
     for (j = 0; j < col; j++){
       fscanf(arq, "%d", &mapa[i][j]);
-      if (mapa[i][j] == PEDRA){
+      int tipo = mapa[i][j];
+      if (tipo == PEDRA){
         totalObjs++;
-
         qtPedras++;
       }
-      if (mapa[i][j] == DIAMANTE){
+      if (tipo == DIAMANTE){
         totalObjs++;
 
         qtDiamantes++;
       }
-      if (mapa[i][j] == BUTTERFLY){
+      if (tipo == BUTTERFLY){
         qtDiamantes++;
+        qtBorboletas++;
       }
-      if (mapa[i][j] == PLAYER){
+      if (tipo == AMOEBA || tipo == FIREFLY){
+        qtAmoebas++;
+      }
+      if (tipo == PLAYER){
         jogador->linInicial=i;
         jogador->colInicial=j;
         jogador->lin=i;
@@ -61,9 +66,13 @@ int **iniciaMapa(char *pathMapa, tObjetos *obj, tPlayer *jogador){
     }
   obj->qtPedras = qtPedras;
   obj->qtDiamantes = qtDiamantes;
+  obj->qtMonstros =   qtBorboletas+qtAmoebas+qtVagalumes;
   obj->totalRochas = totalObjs; 
-  
   obj->rochedos = malloc((qtPedras + qtDiamantes) * sizeof(rochedos));
+  obj->monstros = malloc((qtBorboletas+qtAmoebas+qtVagalumes) * sizeof(tMonstro));
+
+
+  iniciaMonstros(mapa,obj);
   iniciaPedrasEDiamantes(mapa,obj); 
   fclose(arq);
   return mapa;
@@ -83,7 +92,6 @@ tObjetos* iniciaObjetos(ALLEGRO_BITMAP* sheet){
 
 void iniciaPedrasEDiamantes(int **mapa,tObjetos *objetos){
   int pedraAux = 0;
-  int diamanteAux = 0;
   int i,j; 
 
  for(i = 0;i < 22;i++){
@@ -91,17 +99,41 @@ void iniciaPedrasEDiamantes(int **mapa,tObjetos *objetos){
       int tipo = mapa[i][j];
       
   	  if(tipo == PEDRA || tipo == DIAMANTE){
-  	  	objetos->rochedos[pedraAux].lin = i;
-  	    objetos->rochedos[pedraAux].col = j;
-  	    objetos->rochedos[pedraAux].caindo = 0;
-  	    objetos->rochedos[pedraAux].tipo =tipo;
-        objetos->rochedos[pedraAux].ativo=true;
+        rochedos * rochedoAtual = &objetos->rochedos[pedraAux];
 
+  	  	rochedoAtual->lin = i;
+  	    rochedoAtual->col = j;
+  	    rochedoAtual->caindo = 0;
+  	    rochedoAtual->tipo =tipo;
+        rochedoAtual->ativo=true;
   	    pedraAux++;
   	  }
   	}
   }
+}
 
+void iniciaMonstros(int **mapa,tObjetos *objetos){
+  int monstroAux =0;
+  int i,j;
+
+  for (i=0;i < 22;i++){
+    for (j=0;j < 40;j++){
+      int tipo = mapa[i][j];
+
+      if (tipo == BUTTERFLY || tipo == AMOEBA || tipo == FIREFLY){
+        tMonstro *monstro = &objetos->monstros[monstroAux]; 
+        monstro->lin=i;
+        monstro->col=j;
+        monstro->tipo=tipo;
+        monstro->ativo=1; 
+        monstro->direcaoAntiga=RIGHT;
+        monstro->direcaoAtual=RIGHT;
+
+        monstroAux++;
+      }
+
+    }
+  }
 }
 
 void destroi_mapa(int **mapa){

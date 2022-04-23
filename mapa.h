@@ -32,8 +32,8 @@ typedef struct{
   bool ativo; 
 } rochedos;
 
-typedef struct tMonstro {
-  int lin,col,direcaoAtual, direcaoAntiga;
+typedef struct{
+  int lin,col,tipo,direcaoAtual, direcaoAntiga;
   bool ativo; 
 } tMonstro;
 
@@ -54,7 +54,6 @@ typedef struct tPlayer{
 
 typedef struct tObjetos{
   rochedos *rochedos;
-  rochedos *diamond;
   tMonstro *monstros; 
   ALLEGRO_BITMAP* terra;
   ALLEGRO_BITMAP* muro;
@@ -67,7 +66,7 @@ typedef struct tObjetos{
   ALLEGRO_BITMAP* borboleta[8];
   ALLEGRO_BITMAP* vagalume[8];
   ALLEGRO_BITMAP* explosao[4];
-  int qtPedras, qtDiamantes,totalRochas;
+  int qtPedras,qtMonstros,qtDiamantes,totalRochas;
   int animacaoCurta,animacaoLonga;
 }tObjetos;
 
@@ -85,4 +84,5 @@ typedef struct infoMapa{
 tObjetos* iniciaObjetos(ALLEGRO_BITMAP* sheet); 
 int** iniciaMapa(char* nome_mapa, tObjetos* obj, tPlayer *jogador);
 void iniciaPedrasEDiamantes(int **mapa,tObjetos *objetos); 
+void iniciaMonstros(int **mapa,tObjetos *objetos); 
 #endif

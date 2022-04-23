@@ -13,7 +13,7 @@
 #define KEY_SEEN 1
 #define KEY_RELEASED 2
 
-#define PATH_MAP_1 "resources/mapas/mapa8.txt"
+#define PATH_MAP_1 "resources/mapas/mapa4.txt"
 #define MIN_DIAMANTES 12
 #define SIZE_ARQ_PONTOS 5
 #define PATH_SPRITESHEET "resources/img/spritesheet.png"
@@ -81,6 +81,8 @@ void state_play(tNivel *infoNivel);
 void state_end(tNivel *infoNivel);
 void state_close(tNivel *infoNivel);
 
+void movimentaMonstro(int **mapa, tMonstro *monstro);
+void mudaDirecaoMonstro(tMonstro *monstro); 
 int linhaEColunaValidas(int lin,int col);
 void destroiRocha(tObjetos *objetos, int **mapa, int lin,int col, tAudio *sons);
 void empurrarPedra(int **mapa,tObjetos *objetos,int direcao, int lin, int col, tAudio *sons); 
