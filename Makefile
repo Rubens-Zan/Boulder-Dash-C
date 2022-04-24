@@ -10,7 +10,8 @@ CFLAG = -Wall
 MODULOS = game \
 	mapa \
 	texturas \
-	desenhar
+	desenhar \
+	mecanicas
  
 OBJETOS = main.o $(addsuffix .o,$(MODULOS))
 

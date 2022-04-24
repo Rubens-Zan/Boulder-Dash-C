@@ -4,21 +4,22 @@
 
 int main()
 {
-	tNivel *infoNivel = malloc(sizeof(tNivel));
-	infoNivel->state = INICIO;
-
+	tGame *game = malloc(sizeof(tGame)); 
+	game->state = INICIO; 
+	
+	
 	while (1)
 	{
-		switch (infoNivel->state)
+		switch (game->state)
 		{
 		case INICIO:
-			state_init(infoNivel);
+			state_init(game);
 			break;
 		case SERVINDO:
-			state_serve(infoNivel);
+			state_serve(game);
 			break;
 		case JOGANDO:
-			state_play(infoNivel);
+			state_play(game);
 			break;
 		// case FIMPART: state_end(); break;
 		// case FIMJOGO: state_close(); break;

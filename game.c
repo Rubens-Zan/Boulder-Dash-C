@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "allegro5/allegro_ttf.h"
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
+
 #include "game.h"
 #include "mapa.h"
 #include "texturas.h"
 #include "desenhar.h"
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
+#include "mecanicas.h"
 
 // GLOBAIS
 ALLEGRO_TIMER *timer;
@@ -17,19 +19,21 @@ ALLEGRO_DISPLAY *disp;
 
 unsigned char keys[ALLEGRO_KEY_MAX];
 
-// audio *sons_jogo;
-// pontos *pontos_totais;
-
 long frames = 0;
 
-void testaAllegro(bool ok, char *descricao){
+
+// Funcoes para inicializacao do jogo
+
+void testaAllegro(bool ok, char *descricao)
+{
   if (ok)
     return;
   fprintf(stderr, "Não foi possivel inicializar %s\n", descricao);
   exit(1);
 }
 
-void inicializarAllegro(tNivel *infoNivel){
+void inicializarAllegro(tGame *game)
+{
 
   testaAllegro(al_init(), "allegro");
   testaAllegro(al_install_keyboard(), "keyboard");
@@ -37,90 +41,169 @@ void inicializarAllegro(tNivel *infoNivel){
   timer = al_create_timer(1.0 / FRAMERATE);
   testaAllegro(timer, "timer");
 
-
   queue = al_create_event_queue();
   testaAllegro(queue, "queue");
+  // queue = al_create_event_queue();
 
   // Pega spritesheet
   testaAllegro(al_init_image_addon(), "image addon");
-  infoNivel->sheet = al_load_bitmap(PATH_SPRITESHEET);
+  game->sheet = al_load_bitmap(PATH_SPRITESHEET);
 
   // Pega áudios
   testaAllegro(al_install_audio(), "audio");
   testaAllegro(al_init_acodec_addon(), "audio codecs");
-  testaAllegro(al_reserve_samples(16), "reserve samples");
+  testaAllegro(al_reserve_samples(20), "reserve samples");
 
   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
   al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
   disp = al_create_display(WIDTH, HEIGHT);
+  // game->disp = al_create_display(WIDTH, HEIGHT);
+
+  // iniciaAudio();
+
+  // Configura o título da janela
+  al_set_window_title(disp, "Boulder Dash Game by Rubens Zan");
+
+  // Torna apto o uso de mouse na aplicação
+  if (!al_install_mouse())
+  {
+    fprintf(stderr, "Falha ao inicializar o mouse.\n");
+    al_destroy_display(disp);
+  }
+
+  // Atribui o cursor padrão do sistema para ser usado
+  if (!al_set_system_mouse_cursor(disp, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT))
+  {
+    fprintf(stderr, "Falha ao atribuir ponteiro do mouse.\n");
+    al_destroy_display(disp);
+  }
 
   // Inicia fontes
   testaAllegro(al_init_font_addon(), "fonte");
   testaAllegro(al_init_ttf_addon(), "fonte");
-  infoNivel->font = al_create_builtin_font();
-  infoNivel->font = al_load_ttf_font("resources/font/zig.ttf", 20, 0);
+  game->font = al_create_builtin_font();
+  game->font = al_load_ttf_font("resources/font/zig.ttf", 20, 0);
 
   testaAllegro(al_init_primitives_addon(), "primitives");
 
-  
   al_register_event_source(queue, al_get_keyboard_event_source());
   al_register_event_source(queue, al_get_display_event_source(disp));
   al_register_event_source(queue, al_get_timer_event_source(timer));
+  al_register_event_source(queue, al_get_mouse_event_source());
 }
 
-tAudio * iniciaAudio(){
-  tAudio *sons;
-  sons = malloc(sizeof(tAudio)); 
-  if (sons == NULL){
+tAudio *iniciaAudio()
+{
+  tAudio *audio = malloc(sizeof(tAudio)); 
+
+  // inicia as samples
+  audio->soundWalkEarth =al_load_sample("resources/audios/walk_earth.ogg");
+  audio->soundWalkEmpty = al_load_sample("resources/audios/walk_empty.ogg");
+  audio->soundDiamond = al_load_sample("resources/audios/collect_diamond.ogg");
+  audio->soundMelody = al_load_sample("resources/audios/melody.ogg");
+  audio->soundStart = al_load_sample("resources/audios/bg_music.ogg");
+  audio->soundExplosion = al_load_sample("resources/audios/explosion.ogg");
+
+  // // inicia as samples instances com as samples
+  audio->explosion = al_create_sample_instance(audio->soundExplosion);
+  audio->walkEmpty = al_create_sample_instance(audio->soundWalkEmpty);
+  audio->walkEarth = al_create_sample_instance(audio->soundWalkEarth);
+  audio->collectDiamond = al_create_sample_instance(audio->soundDiamond);
+  audio->music = al_create_sample_instance(audio->soundMelody);
+  audio->startingMusic = al_create_sample_instance(audio->soundStart);
+
+  // // seta as samples instances para serem tocadas nos eventos
+  al_set_sample_instance_playmode(audio->music, ALLEGRO_PLAYMODE_LOOP);
+  al_set_sample_instance_playmode(audio->startingMusic, ALLEGRO_PLAYMODE_LOOP);
+  al_attach_sample_instance_to_mixer(audio->walkEmpty, al_get_default_mixer());
+  al_attach_sample_instance_to_mixer(audio->walkEarth, al_get_default_mixer());
+  al_attach_sample_instance_to_mixer(audio->explosion, al_get_default_mixer());
+  al_attach_sample_instance_to_mixer(audio->collectDiamond, al_get_default_mixer());
+  al_attach_sample_instance_to_mixer(audio->music, al_get_default_mixer());
+  al_attach_sample_instance_to_mixer(audio->startingMusic, al_get_default_mixer());
+
+  return audio;
+}
+
+// Funcao para inicializacao do jogador
+tPlayer *iniciaJogador()
+{
+  tPlayer *jogador;
+  jogador = malloc(sizeof(tPlayer));
+
+  if (jogador == NULL)
+  {
     printf("Erro ao alocar memoria!\n");
-  	exit(1);
+    exit(1);
   }
 
-  /* Sound samples, instances; basicly all necessary loading stuff */
-  sons->sound_walk_earth  = al_load_sample("resources/audios/walk_earth.ogg");
-  sons->sound_walk_empty = al_load_sample("resources/audios/walk_empty.ogg");
-  sons->sound_boulder = al_load_sample("resources/audios/bg_music.ogg");
-  sons->sound_diamond = al_load_sample("resources/audios/collect_diamond.ogg");
-  sons->sound_melody = al_load_sample("resources/audios/melody.ogg");
-
-  sons->walk_empty = al_create_sample_instance(sons->sound_walk_empty);
-  sons->walk_earth = al_create_sample_instance(sons->sound_walk_earth);
-  sons->boulder = al_create_sample_instance(sons->sound_boulder);
-  sons->collect_diamond = al_create_sample_instance(sons->sound_diamond);
-  sons->music = al_create_sample_instance(sons->sound_melody);
-
-  al_set_sample_instance_playmode(sons->music, ALLEGRO_PLAYMODE_LOOP);
-  al_attach_sample_instance_to_mixer(sons->walk_empty,al_get_default_mixer());
-  al_attach_sample_instance_to_mixer(sons->walk_earth,al_get_default_mixer());
-  al_attach_sample_instance_to_mixer(sons->boulder,al_get_default_mixer());
-  al_attach_sample_instance_to_mixer(sons->collect_diamond,al_get_default_mixer());
-  al_attach_sample_instance_to_mixer(sons->music,al_get_default_mixer());
-
-  return sons; 
+  jogador->vel = 1;
+  jogador->animacaoAtual = jogador->pontuacao = jogador->diamantes = 0;
+  jogador->tired = 0;
+  jogador->vidas = 7;
+  jogador->vivo = 1;
+  return jogador;
 }
+
+tObjetos *iniciaObjetos()
+{
+  tObjetos *obj;
+  obj = malloc(sizeof(tObjetos));
+  if (obj == NULL)
+  {
+    fprintf(stderr, "Erro ao alocar memória!\n");
+    exit(1);
+  }
+  
+  obj->saidaAtiva = 0;
+  obj->animacaoCurta = 0;
+  obj->animacaoLonga = 0;
+}
+
+// Funcao para inicializacao do nivel
+void iniciaNivel(tNivel *nivel){
+  nivel->jogador = iniciaJogador();
+  nivel->objetosMapa = iniciaObjetos();
+  nivel->mapa = iniciaMapa(PATH_MAP_1, nivel->objetosMapa, nivel->jogador);
+  nivel->relogio = 150;
+}
+
+void alteraNivel(tNivel *nivel, tGame *game){
+  int nivelAtual = game->level; 
+
+}
+
 
 // ESTADOS DO JOGO
-void state_init(tNivel *infoNivel){
-  inicializarAllegro(infoNivel);
-  infoNivel->jogador = inicia_jogador(infoNivel->sheet);
-  infoNivel->objetosMapa = iniciaObjetos(infoNivel->sheet);
-  
-  infoNivel->mapa = iniciaMapa(PATH_MAP_1, infoNivel->objetosMapa,infoNivel->jogador);
-  infoNivel->relogio=150; 
-  infoNivel->state = JOGANDO;
+void state_init(tGame *game)
+{
+  game->nivelAtual = malloc(sizeof(tNivel));
+
+  inicializarAllegro(game);
+  game->texturas=inicializaTexturas(game->sheet);
+  game->sonsJogo= iniciaAudio();
+
+  game->level = 1;
+  game->pontuacao = 0;
+
+  iniciaNivel(game->nivelAtual); 
+  game->state = JOGANDO;
 }
 
-void state_serve(tNivel *infoNivel){
+void state_serve(tGame *game)
+{
   bool done = false;
   al_flush_event_queue(queue);
-  while (1){
-    drawInstructions(infoNivel);
+  while (1)
+  {
+    drawInstructions(game->font);
     al_wait_for_event(queue, &event);
     if (al_is_event_queue_empty(queue))
-      drawInstructions(infoNivel);
-    switch (event.type){
+      drawInstructions(game->font);
+    switch (event.type)
+    {
     case ALLEGRO_EVENT_KEY_DOWN:
       keys[event.keyboard.keycode] = KEY_SEEN | KEY_RELEASED;
       break;
@@ -129,16 +212,18 @@ void state_serve(tNivel *infoNivel){
       break;
     }
     // Caso H/F1 seja pressionado, volta ao jogo
-    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1]){
+    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1])
+    {
       keys[ALLEGRO_KEY_H] = 0;
       keys[ALLEGRO_KEY_F1] = 0;
-      infoNivel->state = JOGANDO;
+      game->state = JOGANDO;
       done = true;
     }
     // Caso ESC seja pressionado, fim partida
-    else if (keys[ALLEGRO_KEY_ESCAPE]){
+    else if (keys[ALLEGRO_KEY_ESCAPE])
+    {
       keys[ALLEGRO_KEY_ESCAPE] = 0;
-      infoNivel->state = FIMPART;
+      game->state = FIMPART;
       done = true;
     }
     if (done)
@@ -146,26 +231,54 @@ void state_serve(tNivel *infoNivel){
   }
 }
 
-void state_play(tNivel *infoNivel){
+void state_play(tGame *game)
+{
   bool done = false;
   bool redraw = true;
   long frames = 0;
-  int morreu,ganhou = 0;
+  int morreu, ganhou = 0;
   al_flush_event_queue(queue);
   memset(keys, 0, sizeof(keys));
   al_start_timer(timer);
+  tNivel *nivel = game->nivelAtual; 
 
-  while (1){
+  al_play_sample_instance(game->sonsJogo->music);
+
+  while (1)
+  {
     al_wait_for_event(queue, &event);
 
-    switch (event.type){
+    switch (event.type)
+    {
+    // Indica que um botao do mouse foi pressionado.
+    case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+      printf("bm arrow up (%d , %d) \n", al_get_bitmap_width(nivel->objetosMapa->arrowUp), al_get_bitmap_height(nivel->objetosMapa->arrowUp));
+      printf("bm arrow down (%d, %d)\n", al_get_bitmap_width(nivel->objetosMapa->arrowDown), al_get_bitmap_height(nivel->objetosMapa->arrowDown));
+
+      // checa se o clique eh no botao up
+      if (event.mouse.x >= SCREEN_WIDTH - al_get_bitmap_width(nivel->objetosMapa->arrowUp) - 10 &&
+          event.mouse.x <= SCREEN_WIDTH - 10 && event.mouse.y <= SCREEN_HEIGHT - 10 &&
+          event.mouse.y >= SCREEN_HEIGHT - al_get_bitmap_height(nivel->objetosMapa->arrowUp) - 10)
+      {
+        printf("ARROW UP ");
+      }
+      // checa se o clique eh no botao down
+      if (event.mouse.x >= SCREEN_WIDTH - al_get_bitmap_width(nivel->objetosMapa->arrowUp) - 10 &&
+          event.mouse.x <= SCREEN_WIDTH - 10 && event.mouse.y <= SCREEN_HEIGHT - 10 &&
+          event.mouse.y >= SCREEN_HEIGHT - al_get_bitmap_height(nivel->objetosMapa->arrowUp) - 10)
+      {
+        printf("ARROW DOWN ");
+      }
+
+      break;
     case ALLEGRO_EVENT_TIMER:
-      verificaEntrada(keys, &done, redraw, infoNivel->jogador, frames);
-      movimentaObjetos(infoNivel->mapa, infoNivel->jogador, infoNivel->jogador->direction, infoNivel->objetosMapa, frames, infoNivel->sonsJogo);
-      if (testaMapa(infoNivel->mapa, infoNivel->jogador, infoNivel->objetosMapa, frames, infoNivel->sonsJogo))
-        atualizaPlayer(infoNivel->jogador);
-      if (frames % 60 == 0 && infoNivel->jogador->vivo && infoNivel->relogio > 0){
-        infoNivel->relogio--;
+      verificaEntrada(keys, &done, redraw, nivel->jogador, frames);
+      movimentaObjetos(nivel->mapa, nivel->jogador, nivel->jogador->direction, nivel->objetosMapa, frames, game->sonsJogo);
+      if (testaMapa(nivel->mapa, nivel->jogador, nivel->objetosMapa, frames, game->sonsJogo))
+        atualizaPlayer(nivel->jogador);
+      if (frames % 60 == 0 && nivel->jogador->vivo && nivel->relogio > 0)
+      {
+        nivel->relogio--;
       }
       break;
     case ALLEGRO_EVENT_KEY_DOWN:
@@ -174,29 +287,31 @@ void state_play(tNivel *infoNivel){
     case ALLEGRO_EVENT_KEY_UP:
       keys[event.keyboard.keycode] &= KEY_RELEASED;
       break;
+    // Indica que o botao de fechar da janela foi pressionado.
     case ALLEGRO_EVENT_DISPLAY_CLOSE:
       done = true;
       break;
     }
     // Vai para menu de ajuda
-    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1]){
+    if (keys[ALLEGRO_KEY_H] || keys[ALLEGRO_KEY_F1])
+    {
       keys[ALLEGRO_KEY_H] = 0;
       keys[ALLEGRO_KEY_F1] = 0;
-      infoNivel->state = SERVINDO;
+      game->state = SERVINDO;
       done = true;
     }
     if (redraw && al_is_event_queue_empty(queue))
-      draw(redraw, frames, infoNivel);
+      draw(redraw, frames, nivel, game);
 
     if (done)
       break;
-    
+
     frames++;
   }
 }
 
-
-int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames, tAudio *sons){
+int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames, tAudio *sons)
+{
   int colAtual, linAtual, horizontalOffset, verticalOffset, ok;
   // Coordenadas do personagem dentro do mapa
   colAtual = jogador->col;
@@ -227,172 +342,81 @@ int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames, tAud
   // verifica se andou
   if (andou && frames % 10 == 0)
   {
-    ok = testaObjetosCaminho(jogador, mapa, objetos, linAtual, colAtual, verticalOffset, horizontalOffset,sons,frames);
+    ok = testaObjetosCaminho(jogador, mapa, objetos, linAtual, colAtual, verticalOffset, horizontalOffset, sons, frames);
   }
 
   return ok;
 }
 
-int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int linAtual, int colAtual, int vertical, int horizontal, tAudio *sons,long frames){
+int testaObjetosCaminho(tPlayer *jogador, int **mapa, tObjetos *objetos, int linAtual, int colAtual, int vertical, int horizontal, tAudio *sons, long frames)
+{
 
   int col = colAtual + horizontal;
   int lin = linAtual + vertical;
   int *pos = &mapa[lin][col];
-  
-  if (*pos == VAZIO){
-    *pos = PLAYER;
-    mapa[linAtual][colAtual] = VAZIO;
-    // al_play_sample_instance(sons->walk_empty);
-    return 1;
-  }
-  if (*pos == TERRA ){
-    *pos = PLAYER;
-    mapa[linAtual][colAtual] = VAZIO;
 
-    // al_play_sample_instance(sons->walk_earth);
+  if (*pos == VAZIO)
+  {
+    al_play_sample_instance(sons->walkEmpty);
+    *pos = PLAYER;
+    mapa[linAtual][colAtual] = VAZIO;
     return 1;
   }
 
-  if (*pos == DIAMANTE){
-    destroiRocha(objetos, mapa, lin, col,sons);
+  if (*pos == TERRA)
+  {
+    al_play_sample_instance(sons->walkEarth);
+    *pos = PLAYER;
+    mapa[linAtual][colAtual] = VAZIO;
+    return 1;
+  }
+
+  if (*pos == DIAMANTE)
+  {
+    al_play_sample_instance(sons->collectDiamond);
+
+    destroiRocha(objetos, mapa, lin, col, sons);
     jogador->pontuacao += 10;
     jogador->diamantes += 1;
     *pos = PLAYER;
     mapa[linAtual][colAtual] = VAZIO;
 
     if (objetos->qtDiamantes == jogador->diamantes)
-      criaSaida(mapa);
+      criaSaida(objetos);
     return 1;
   }
-  if (*pos == PEDRA){
-    if (mapa[linAtual][colAtual+2*horizontal] == VAZIO && frames % 20 == 0){
-      empurrarPedra(mapa, objetos, horizontal,lin,col, sons);
+
+  if (*pos == PEDRA)
+  {
+    if (mapa[linAtual][colAtual + 2 * horizontal] == VAZIO && frames % 20 == 0)
+    {
+      empurrarPedra(mapa, objetos, horizontal, lin, col, sons);
       *pos = PLAYER;
       mapa[linAtual][colAtual] = VAZIO;
-      mapa[linAtual][colAtual+2*horizontal] = PEDRA; 
+      mapa[linAtual][colAtual + 2 * horizontal] = PEDRA;
 
-      return 1; 
+      return 1;
     }
-    
   }
 
-  if (*pos == SAIDA){
-    printf("ok ganhou "); 
+  if (*pos == SAIDA && objetos->saidaAtiva)
+  {
+    printf("ok ganhou ");
   }
 
   return 0;
 }
 
-// void proxNivel(){
-
-// }
-
-// Funcoes para destruir coisas 
-void explodeEmVolta(int **mapa,tObjetos *objetos,int lin, int col, tAudio *sons){
-
-  for (int i=-1;i<2;i++){
-    for (int j=-1;j<2;j++){
-      if (linhaEColunaValidas(lin+i,col+j) && mapa[lin+i][col+j] != METAL && mapa[lin+i][col+j] != DIAMANTE){
-        if (mapa[lin+i][col+j] == PEDRA){
-          destroiRocha(objetos,mapa,lin+i,col+j,sons); 
-        }
-        mapa[lin+i][col+j] = EXPLOSAO;
-
-
-      }
-    }
-  }
-
-}
-
-void mataPlayer(tPlayer *jogador, int lin, int col, int **mapa, tObjetos *objetos, tAudio *sons){
-  jogador->vidas--;
-
-  explodeEmVolta(mapa, objetos,lin,col,sons); 
-
-  jogador->col = jogador->colInicial;
-  jogador->lin = jogador->linInicial; 
-
-  mapa[jogador->linInicial][jogador->colInicial] = PLAYER;
-}
-
-void destroiRocha(tObjetos *objetos, int **mapa, int lin, int col, tAudio *sons){
-  // al_play_sample_instance(sons->collect_diamond);
-
-  for (int i = 0; i < objetos->totalRochas; i++){
-    rochedos *rochedoAtual = &objetos->rochedos[i];
-
-    if (rochedoAtual->ativo && rochedoAtual->col == col && rochedoAtual->lin == lin)
-      rochedoAtual->ativo = false;
-  }
-
-}
-
-void mataMonstro(int **mapa,tObjetos *objetos,int lin,int col, tAudio *sons){
-  for (int i=0;i<objetos->qtMonstros;i++){
-    tMonstro *monstroAux = &objetos->monstros[0]; 
-
-    if (monstroAux->lin == lin && monstroAux->col == col){
-      monstroAux->ativo=0;
-      explodeEmVolta(mapa,objetos,lin,col,sons); 
-
-      if (monstroAux->tipo == BUTTERFLY){
-        mapa[monstroAux->lin][monstroAux->col]=DIAMANTE; 
-
-      }
-    }
-
-  }
-
-}
-
-// ACOES PLAYER
-void empurrarPedra(int **mapa,tObjetos *objetos,int direcao, int lin, int col, tAudio *sons){
-  for (int i = 0; i < objetos->totalRochas; i++){
-    rochedos *rochedoAtual = &objetos->rochedos[i];
-
-    if (rochedoAtual->ativo && rochedoAtual->col == col && rochedoAtual->lin == lin){
-      rochedoAtual->col += direcao;
-    }
-    
-  }
-}
-
-void atualizaPlayer(tPlayer *jogador){
-  
-  // DECREMENTO/INCREMENTO EM RELACAO A VELOCIDADE
-  if (jogador->direction == UP)
-  {
-    jogador->lin -= jogador->vel;
-    jogador->tired = 0;
-  }
-  if (jogador->direction == BOTTOM)
-  {
-    jogador->lin += jogador->vel;
-    jogador->tired = 0;
-  }
-  if (jogador->direction == LEFT)
-  {
-    jogador->col -= jogador->vel;
-    jogador->tired = 0;
-  }
-  if (jogador->direction == RIGHT)
-  {
-    jogador->col += jogador->vel;
-    jogador->tired = 0;
-  }
-
-  jogador->direction = STOP;
-}
-
-void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames){
+void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames)
+{
   int oldDirection = jogador->direction;
 
   // VERIFICA A DIRECAO E
   // VERIFICA SE NAO ESTA NAS BORDAS
   if (keys[ALLEGRO_KEY_UP] || keys[ALLEGRO_KEY_W])
   {
-    if (jogador->lin > 0){
+    if (jogador->lin > 0)
+    {
       jogador->direction = UP;
       jogador->tired++;
     }
@@ -442,151 +466,14 @@ void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *joga
   redraw = true;
 }
 
-
-void criaSaida(int **mapa){
-  mapa[16][38] = SAIDA;
+void criaSaida(tObjetos *obj)
+{
+  obj->saidaAtiva = 1;
 }
 
-// FUNCOES MOVIMENTAR JOGO
-void movimentaObjetos(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames, tAudio *sons){
-  int lin,col; 
-
-  if (frames % 10 == 0){
-    for (int i = 0; i < objetos->totalRochas; i++){
-      rochedos *rochedoAtual = &objetos->rochedos[i];
-
-      // checa apenas para pedras que ainda nao foram destruidas
-      if (rochedoAtual->ativo){
-
-        lin = rochedoAtual->lin;
-        col=rochedoAtual->col;
-        verificaRolamento(mapa, objetos, col, lin, i);
-
-        // Testa se deve continuar caindo
-        if (rochedoAtual->caindo == 1){
-          // Se a pedra esta caindo e o player esta em baixo mata ele
-          if (mapa[lin + 1][col] == PLAYER){
-            mataPlayer(jogador, lin+1, col, mapa,objetos,sons);
-          }
-
-          if (mapa[lin+1][col] == BUTTERFLY){
-            mataMonstro(mapa,objetos,lin+1,col,sons);
-          }
-
-          if (mapa[lin + 1][col] != VAZIO && mapa[lin + 1][col] != PLAYER && mapa[lin + 1][col]){
-            rochedoAtual->caindo = 0;
-          }
-        }
-
-        // Desabamento normal
-        if (mapa[lin + 1][col] == VAZIO && (lin + 1 < 21))
-        {
-          rochedoAtual->caindo = 1;
-          rochedoAtual->lin++;
-          mapa[lin + 1][col] = rochedoAtual->tipo;
-          mapa[lin][col] = VAZIO;
-        }
-      }
-    }
-
-    for (int k = 0; k < objetos->qtMonstros; k++){
-      tMonstro *monstroAtual = &objetos->monstros[k];
-
-      // checa apenas para pedras que ainda nao foram destruidas
-      if (monstroAtual->ativo){
-        if (monstroAtual->tipo == BUTTERFLY || monstroAtual->tipo == FIREFLY){
-          movimentaMonstro(mapa,monstroAtual); 
-        } 
-      }
-    }
-  }
-
-}
-
-void movimentaMonstro(int **mapa, tMonstro *monstro){
-  int horizontal =0,vertical = 0;
-  if (monstro->direcaoAtual == RIGHT){
-    horizontal=1;
-  }else if (monstro->direcaoAtual == LEFT){
-    horizontal=-1;
-  }else if(monstro->direcaoAtual == BOTTOM){
-    vertical=1;
-  }else if(monstro->direcaoAtual == UP){
-    vertical=-1;
-  }
-
-
-  if (linhaEColunaValidas(monstro->lin+vertical, monstro->col+horizontal) && (mapa[monstro->lin+vertical][monstro->col+horizontal] == VAZIO || mapa[monstro->lin+vertical][monstro->col+horizontal] == PLAYER ) ){
-    mapa[monstro->lin][monstro->col] = VAZIO;
-    mapa[monstro->lin+vertical][monstro->col+horizontal]= monstro->tipo;
-    monstro->lin+=vertical;
-    monstro->col+=horizontal;
-    
-  }else{
-    mudaDirecaoMonstro(monstro); 
-  }
-}
-
-void mudaDirecaoMonstro(tMonstro *monstro){
-  if (monstro->tipo == FIREFLY){
-    if (monstro->direcaoAtual == RIGHT){
-      monstro->direcaoAtual = BOTTOM;
-    }else if (monstro->direcaoAtual == BOTTOM){
-      monstro->direcaoAtual = LEFT;
-    }else if (monstro->direcaoAtual == LEFT){
-      monstro->direcaoAtual = UP;
-    }else if (monstro->direcaoAtual == UP){
-      monstro->direcaoAtual = RIGHT;
-    }
-  }else if (monstro->tipo == BUTTERFLY){
-    if (monstro->direcaoAtual == LEFT){
-      monstro->direcaoAtual = BOTTOM;
-    }else if (monstro->direcaoAtual == BOTTOM){
-      monstro->direcaoAtual = RIGHT;
-    }else if (monstro->direcaoAtual == RIGHT){
-      monstro->direcaoAtual = UP;
-    }else if (monstro->direcaoAtual == UP){
-      monstro->direcaoAtual = LEFT;
-    }
-  }
-}
-
-void verificaRolamento(int **mapa, tObjetos *objetos, int col, int lin, int rochaAtual){
-  rochedos *rocha = &objetos->rochedos[rochaAtual]; 
-
-  int pedraX = rocha->lin;
-  int pedraY = rocha->col;
-  int tipo = rocha->tipo;
-  int direcao = 0; 
-  
-  if (lin > 0 && lin < TOTAL_LINHAS && col >0 && col < TOTAL_COLUNAS){
-    // verifica se esta sobre uma rocha
-    if (mapa[lin+1][col] == PEDRA || mapa[lin+1][col] == DIAMANTE){
-      // verifica rolamento para a direita
-      if (mapa[lin+1][col+1] == VAZIO && mapa[lin][col+1] == VAZIO){
-        direcao=1; 
-        rolaRocha(mapa,rocha,lin,col,direcao); 
-      }
-      // verifica o rolamento para esquerda
-      if (mapa[lin+1][col-1] == VAZIO && mapa[lin][col-1] == VAZIO){
-        direcao=-1; 
-        rolaRocha(mapa, rocha,lin,col,direcao);       
-      }
-    }
-  }
-}
-
-void rolaRocha(int **mapa,rochedos *rocha,int lin,int col,int direcao){
-  mapa[lin][col] = VAZIO;
-  mapa[lin+1][col + direcao] = rocha->tipo;
-  
-  rocha->caindo = 1;
-  rocha->lin = lin + 1;
-  rocha->col = col + direcao; 
-}
-
-int linhaEColunaValidas(int lin,int col){
+int linhaEColunaValidas(int lin, int col)
+{
   if (lin > 0 && lin <= TOTAL_LINHAS && col > 0 && col <= TOTAL_COLUNAS)
     return 1;
-  return 0; 
+  return 0;
 }

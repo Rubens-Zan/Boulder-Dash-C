@@ -3,6 +3,7 @@
 
 
 #include "mapa.h"
+#include "game.h"
 #include "texturas.h"
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -10,10 +11,10 @@
 
 
 // FUNCOES DE DESENHO 
-void draw(bool redraw, long frames,tNivel *infoNivel);
-void drawPlayer(tPlayer *jogador, int** mapa, tObjetos *obj, long frames); 
-void drawInstructions(); 
-void drawHeader(ALLEGRO_FONT *fonte, int relogio, int vidas,int pontuacao,int diamantesJogador,int diamantesTotal, ALLEGRO_BITMAP *diamanteTextura);
+void draw(bool redraw, long frames, tNivel *infoNivel, tGame *game);
+void drawPlayer(tTexturas *texturas, int lin,int col,int direcao,int animacaoAtual);
+void drawInstructions(ALLEGRO_FONT *fonte); 
+void drawMap(int **mapa, tObjetos *objetosMapa, long frames, int col, int lin, tTexturas *texturas);
+void drawHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, int pontuacao, int diamantesJogador, int diamantesTotal,tTexturas *texturas, int nivel);
 void drawInicialMenu();
-void drawMap(int** mapa, tObjetos* objetosMapa, long frames, int col, int lin);
 #endif

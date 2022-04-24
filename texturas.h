@@ -7,13 +7,28 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_image.h>
-#include "game.h"
-#include "mapa.h"
 
-tPlayer* inicia_jogador(ALLEGRO_BITMAP* sheet); 
-void iniciaSpritesObjetos(ALLEGRO_BITMAP* sheet, tObjetos* obj);
-void iniciaSpritesJogador(ALLEGRO_BITMAP* sheet, tPlayer* jogador);
-void destroiSpritesObjetos(tObjetos* obj);
-void destroi_sprites_player(tPlayer* jogador);
+#define SIZE_OBJS 30
+
+
+typedef struct tTexturas
+{
+    ALLEGRO_BITMAP *vazio,*saida,*pedra, *metal, *muro,*terra, *arrowUp, *arrowDown;
+    ALLEGRO_BITMAP *jogadorParado[7];
+    ALLEGRO_BITMAP *jogadorEsq[7];
+    ALLEGRO_BITMAP *jogadorDir[7];
+    ALLEGRO_BITMAP *amoeba[8];
+    ALLEGRO_BITMAP *diamante[8];
+    ALLEGRO_BITMAP *borboleta[4];
+    ALLEGRO_BITMAP *vagalume[4];
+    ALLEGRO_BITMAP *explosao[4];
+} tTexturas; 
+
+tTexturas *inicializaTexturas(ALLEGRO_BITMAP *sheet); 
+void iniciaSpritesObjetos(ALLEGRO_BITMAP* sheet, tTexturas *texturas);
+void iniciaSpritesJogador(ALLEGRO_BITMAP* sheet, tTexturas *texturas);
+void destroiSpritesObjetos(tTexturas *texturas); 
+void destroi_sprites_player(tTexturas *texturas);
+ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h); 
 
 #endif
