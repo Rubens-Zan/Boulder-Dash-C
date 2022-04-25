@@ -17,9 +17,9 @@ OBJETOS = main.o $(addsuffix .o,$(MODULOS))
 
 .PHONY: all clean
 
-all: teste
+all: jogo
 
-teste: $(OBJETOS)
+jogo: $(OBJETOS)
 	$(CC) -o $(EXEC) $(OBJETOS) $(ALLEGRO) $(CFLAG)
 
 clean:

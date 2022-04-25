@@ -25,12 +25,12 @@ ALLEGRO_BITMAP *carregaBitmapEmTamanhoFixo(const char *filename, int w, int h)
 
   // 4. copy the loaded bitmap to the resized bmp
   al_draw_scaled_bitmap(bmpCarregado,
-                        0, 0,                             // source origin
+                        0, 0,                               // source origin
                         al_get_bitmap_width(bmpCarregado),  // source width
                         al_get_bitmap_height(bmpCarregado), // source height
-                        0, 0,                             // target origin
-                        w, h,                             // target dimensions
-                        0                                 // flags
+                        0, 0,                               // target origin
+                        w, h,                               // target dimensions
+                        0                                   // flags
   );
 
   // 5. restore the previous target and clean up
@@ -123,7 +123,6 @@ void destroiSpritesObjetos(tTexturas *texturas)
   al_destroy_bitmap(texturas->arrowDown);
   al_destroy_bitmap(texturas->creeper);
 
-  
   for (int i = 0; i < 4; i++)
   {
     al_destroy_bitmap(texturas->explosao[i]);

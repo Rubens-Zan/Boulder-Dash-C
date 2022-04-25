@@ -172,19 +172,24 @@ tObjetos *iniciaObjetos()
 }
 
 // O easter egg vai explodir todas as pedras
-void executaEasterEgg(int **mapa, rochedos *rochas, int totalRochas, tAudio *sons){
-  for (int i=0;i< 22;i++){
-    for (int j=0;j<40;j++){
-      if (mapa[i][j] == PEDRA){
+void executaEasterEgg(int **mapa, rochedos *rochas, int totalRochas, tAudio *sons)
+{
+  for (int i = 0; i < 22; i++)
+  {
+    for (int j = 0; j < 40; j++)
+    {
+      if (mapa[i][j] == PEDRA)
+      {
         mapa[i][j] = EXPLOSAO;
         al_play_sample_instance(sons->explosion);
       }
     }
   }
 
-  for (int k=0;k < totalRochas;k++){
+  for (int k = 0; k < totalRochas; k++)
+  {
     if (rochas[k].tipo == PEDRA && rochas[k].ativo)
-      rochas[k].ativo = false; 
+      rochas[k].ativo = false;
   }
 }
 
@@ -328,8 +333,9 @@ void state_play(tGame *game)
       {
         alteraNivel(game, game->level + 1, 0);
       }
-      else if (event.mouse.x >= WIDTH- 100 && event.mouse.x <= WIDTH && event.mouse.y <= 30){
-        executaEasterEgg(game->nivelAtual->mapa,game->nivelAtual->objetosMapa->rochedos,game->nivelAtual->objetosMapa->totalRochas, game->sonsJogo); 
+      else if (event.mouse.x >= WIDTH - 100 && event.mouse.x <= WIDTH && event.mouse.y <= 30)
+      {
+        executaEasterEgg(game->nivelAtual->mapa, game->nivelAtual->objetosMapa->rochedos, game->nivelAtual->objetosMapa->totalRochas, game->sonsJogo);
       }
 
       break;
@@ -376,7 +382,13 @@ void state_play(tGame *game)
   }
 }
 
+// Mostra a tela de high score e verifica se o player deseja continuar jogando
 void state_end(tGame *game)
+{
+}
+
+// Finaliza o jogo
+void state_close(tGame *game)
 {
   destroiNivel(game->nivelAtual);
 }

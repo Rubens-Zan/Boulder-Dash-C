@@ -45,8 +45,8 @@ typedef enum tDirecao
 
 typedef struct tAudio
 {
-    ALLEGRO_SAMPLE *soundDoor,*soundWalkEarth, *soundWalkEmpty, *soundBoulder, *soundDiamond, *soundMelody, *soundStart, *soundExplosion;
-    ALLEGRO_SAMPLE_INSTANCE *door,*walkEmpty, *walkEarth, *boulder, *collectDiamond, *music, *startingMusic, *explosion;
+    ALLEGRO_SAMPLE *soundDoor, *soundWalkEarth, *soundWalkEmpty, *soundBoulder, *soundDiamond, *soundMelody, *soundStart, *soundExplosion;
+    ALLEGRO_SAMPLE_INSTANCE *door, *walkEmpty, *walkEarth, *boulder, *collectDiamond, *music, *startingMusic, *explosion;
 } tAudio;
 
 typedef struct tNivel
@@ -80,12 +80,14 @@ void executaEasterEgg(int **mapa, rochedos *rochas, int totalRochas, tAudio *son
 void state_init(tGame *game);
 void state_serve(tGame *game);
 void state_play(tGame *game);
-void destroiNivel(tNivel *nivel); 
+void state_end(tGame *game);
+void state_close(tGame *game);
+void destroiNivel(tNivel *nivel);
 void state_end(tGame *game);
 void state_close(tGame *game);
 char *pegaPathMapa(int level);
 void verificaEntrada(unsigned char *keys, bool *done, bool redraw, tPlayer *jogador, long frames);
-void criaSaida(tObjetos *obj, tAudio *sons); 
+void criaSaida(tObjetos *obj, tAudio *sons);
 tNivel *iniciaNivel(int level);
 void alteraNivel(tGame *game, int novo, int venceu);
 tAudio *iniciaAudio();

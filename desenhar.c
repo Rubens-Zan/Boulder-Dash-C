@@ -154,7 +154,6 @@ void desenhaInstrucoes(ALLEGRO_FONT *fonte)
 void desenhaHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, int pontuacao, int diamantesJogador, int diamantesTotal, tTexturas *texturas, int nivel)
 {
   al_clear_to_color(al_map_rgb(0, 0, 0));
-  
 
   al_draw_textf(fonte, al_map_rgb(255, 255, 255), 10, 10, 0, "NIVEL %d", nivel);
 
@@ -164,10 +163,9 @@ void desenhaHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, int pontuacao, i
   al_draw_bitmap(texturas->diamante[0], 220, 10, 0);
   al_draw_textf(fonte, al_map_rgb(255, 255, 255), 250, 10, 0, "%d/%d", diamantesJogador, diamantesTotal);
 
-  al_draw_textf(fonte, al_map_rgb(245, 233, 66),WIDTH/2, 10, 0, "%05d", pontuacao);
-  al_draw_textf(fonte, al_map_rgb(245, 233, 66),WIDTH/2-150, 10, 0, "%d", relogio);
+  al_draw_textf(fonte, al_map_rgb(245, 233, 66), WIDTH / 2, 10, 0, "%05d", pontuacao);
+  al_draw_textf(fonte, al_map_rgb(245, 233, 66), WIDTH / 2 - 150, 10, 0, "%d", relogio);
   al_draw_textf(fonte, al_map_rgb(255, 0, 34), 700, 10, 0, "Vidas: %d", vidas);
   al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH - 250, 10, 0, "Help: H/F1");
-  al_draw_bitmap(texturas->creeper, WIDTH-50, 10, 0);
-
+  al_draw_bitmap(texturas->creeper, WIDTH - 50, 10, 0);
 }
