@@ -76,7 +76,7 @@ typedef struct tGame
 } tGame;
 
 void alteraNivel(tGame *game, int novo, int venceu);
-
+void executaEasterEgg(int **mapa, rochedos *rochas, int totalRochas, tAudio *sons);
 void state_init(tGame *game);
 void state_serve(tGame *game);
 void state_play(tGame *game);
