@@ -41,7 +41,7 @@ typedef struct
 
 typedef struct tPlayer
 {
-  int diamantes,direction, animacaoAtual;
+  int diamantes, direction, animacaoAtual;
   int vidas;
   int vel;
   int lin, col, linInicial, colInicial;

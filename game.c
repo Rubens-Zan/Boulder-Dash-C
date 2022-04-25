@@ -12,6 +12,7 @@
 #include "texturas.h"
 #include "desenhar.h"
 #include "mecanicas.h"
+#include "highscores.h"
 
 // GLOBAIS
 ALLEGRO_TIMER *timer;
@@ -385,6 +386,14 @@ void state_play(tGame *game)
 // Mostra a tela de high score e verifica se o player deseja continuar jogando
 void state_end(tGame *game)
 {
+  int scores[10];
+  int nScores = 0; 
+  carregarScores("resources/scores.txt", scores, nScores);
+
+  for (int i=0;i < nScores;i++){
+    printf("%d \n ", scores[nScores]);
+  }
+
 }
 
 // Finaliza o jogo

@@ -11,7 +11,8 @@ MODULOS = game \
 	mapa \
 	texturas \
 	desenhar \
-	mecanicas
+	mecanicas \
+	highscores
  
 OBJETOS = main.o $(addsuffix .o,$(MODULOS))
 
