@@ -31,6 +31,6 @@ void iniciaSpritesObjetos(ALLEGRO_BITMAP* sheet, tTexturas *texturas);
 void iniciaSpritesJogador(ALLEGRO_BITMAP* sheet, tTexturas *texturas);
 void destroiSpritesObjetos(tTexturas *texturas); 
 void destroi_sprites_player(tTexturas *texturas);
-ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h); 
+ALLEGRO_BITMAP *carregaBitmapEmTamanhoFixo(const char *filename, int w, int h); 
 
 #endif

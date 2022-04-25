@@ -265,10 +265,10 @@ void state_serve(tGame *game)
   al_flush_event_queue(queue);
   while (1)
   {
-    drawInstructions(game->font);
+    desenhaInstrucoes(game->font);
     al_wait_for_event(queue, &event);
     if (al_is_event_queue_empty(queue))
-      drawInstructions(game->font);
+      desenhaInstrucoes(game->font);
     switch (event.type)
     {
     case ALLEGRO_EVENT_KEY_DOWN:
@@ -363,7 +363,7 @@ void state_play(tGame *game)
       done = true;
     }
     if (redraw && al_is_event_queue_empty(queue))
-      draw(redraw, frames, game->nivelAtual, game);
+      desenhaTela(redraw, frames, game->nivelAtual, game);
 
     if (game->nivelAtual->relogio == 0 || game->nivelAtual->jogador->vidas == 0)
     {

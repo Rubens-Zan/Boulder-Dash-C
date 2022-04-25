@@ -2,42 +2,42 @@
 #include <stdlib.h>
 #include "texturas.h"
 
-ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h)
+ALLEGRO_BITMAP *carregaBitmapEmTamanhoFixo(const char *filename, int w, int h)
 {
-  ALLEGRO_BITMAP *resized_bmp, *loaded_bmp, *prev_target;
+  ALLEGRO_BITMAP *bmpRedimensionado, *bmpCarregado, *versaoAnterior;
 
   // 1. create a temporary bitmap of size we want
-  resized_bmp = al_create_bitmap(w, h);
-  if (!resized_bmp)
+  bmpRedimensionado = al_create_bitmap(w, h);
+  if (!bmpRedimensionado)
     return NULL;
 
   // 2. load the bitmap at the original size
-  loaded_bmp = al_load_bitmap(filename);
-  if (!loaded_bmp)
+  bmpCarregado = al_load_bitmap(filename);
+  if (!bmpCarregado)
   {
-    al_destroy_bitmap(resized_bmp);
+    al_destroy_bitmap(bmpRedimensionado);
     return NULL;
   }
 
   // 3. set the target bitmap to the resized bmp
-  prev_target = al_get_target_bitmap();
-  al_set_target_bitmap(resized_bmp);
+  versaoAnterior = al_get_target_bitmap();
+  al_set_target_bitmap(bmpRedimensionado);
 
   // 4. copy the loaded bitmap to the resized bmp
-  al_draw_scaled_bitmap(loaded_bmp,
+  al_draw_scaled_bitmap(bmpCarregado,
                         0, 0,                             // source origin
-                        al_get_bitmap_width(loaded_bmp),  // source width
-                        al_get_bitmap_height(loaded_bmp), // source height
+                        al_get_bitmap_width(bmpCarregado),  // source width
+                        al_get_bitmap_height(bmpCarregado), // source height
                         0, 0,                             // target origin
                         w, h,                             // target dimensions
                         0                                 // flags
   );
 
   // 5. restore the previous target and clean up
-  al_set_target_bitmap(prev_target);
-  al_destroy_bitmap(loaded_bmp);
+  al_set_target_bitmap(versaoAnterior);
+  al_destroy_bitmap(bmpCarregado);
 
-  return resized_bmp;
+  return bmpRedimensionado;
 }
 
 tTexturas *inicializaTexturas(ALLEGRO_BITMAP *sheet)
@@ -92,9 +92,9 @@ void iniciaSpritesObjetos(ALLEGRO_BITMAP *sheet, tTexturas *texturas)
   texturas->vagalume[2] = al_create_sub_bitmap(sheet, 80, 96, 15, 16);
   texturas->vagalume[3] = al_create_sub_bitmap(sheet, 80, 112, 15, 16);
 
-  texturas->creeper = load_bitmap_at_size("resources/img/creeper.png", SIZE_OBJS / 2, SIZE_OBJS / 2);
-  texturas->arrowDown = load_bitmap_at_size("resources/img/arrow-down.png", SIZE_OBJS / 2, SIZE_OBJS / 2);
-  texturas->arrowUp = load_bitmap_at_size("resources/img/arrow-up.png", SIZE_OBJS / 2, SIZE_OBJS / 2);
+  texturas->creeper = carregaBitmapEmTamanhoFixo("resources/img/creeper.png", SIZE_OBJS / 2, SIZE_OBJS / 2);
+  texturas->arrowDown = carregaBitmapEmTamanhoFixo("resources/img/arrow-down.png", SIZE_OBJS / 2, SIZE_OBJS / 2);
+  texturas->arrowUp = carregaBitmapEmTamanhoFixo("resources/img/arrow-up.png", SIZE_OBJS / 2, SIZE_OBJS / 2);
 }
 
 // Inicia as sprites do jogador
@@ -119,7 +119,11 @@ void destroiSpritesObjetos(tTexturas *texturas)
   al_destroy_bitmap(texturas->terra);
   al_destroy_bitmap(texturas->pedra);
   al_destroy_bitmap(texturas->vazio);
+  al_destroy_bitmap(texturas->arrowUp);
+  al_destroy_bitmap(texturas->arrowDown);
+  al_destroy_bitmap(texturas->creeper);
 
+  
   for (int i = 0; i < 4; i++)
   {
     al_destroy_bitmap(texturas->explosao[i]);

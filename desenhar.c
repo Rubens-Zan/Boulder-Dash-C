@@ -1,16 +1,16 @@
 #include "desenhar.h"
 
 // Função de desenho principal
-void draw(bool redraw, long frames, tNivel *infoNivel, tGame *game)
+void desenhaTela(bool redraw, long frames, tNivel *infoNivel, tGame *game)
 {
-  drawHeader(game->font, infoNivel->relogio, infoNivel->jogador->vidas, game->nivelAtual->pontos, infoNivel->jogador->diamantes, infoNivel->objetosMapa->qtDiamantes, game->texturas, game->level);
-  drawMap(infoNivel->mapa, infoNivel->objetosMapa, frames, 22, 40, game->texturas);
-  drawPlayer(game->texturas, infoNivel->jogador->lin, infoNivel->jogador->col, infoNivel->jogador->direction, infoNivel->jogador->animacaoAtual);
+  desenhaHeader(game->font, infoNivel->relogio, infoNivel->jogador->vidas, game->nivelAtual->pontos, infoNivel->jogador->diamantes, infoNivel->objetosMapa->qtDiamantes, game->texturas, game->level);
+  desenhaMapa(infoNivel->mapa, infoNivel->objetosMapa, frames, 22, 40, game->texturas);
+  desenhaJogador(game->texturas, infoNivel->jogador->lin, infoNivel->jogador->col, infoNivel->jogador->direction, infoNivel->jogador->animacaoAtual);
   al_flip_display();
   redraw = false;
 }
 
-void drawMap(int **mapa, tObjetos *objetosMapa, long frames, int col, int lin, tTexturas *texturas)
+void desenhaMapa(int **mapa, tObjetos *objetosMapa, long frames, int col, int lin, tTexturas *texturas)
 {
   int i, j, scaledI, scaledJ;
   for (i = 0; i < col; i++)
@@ -91,7 +91,7 @@ void drawMap(int **mapa, tObjetos *objetosMapa, long frames, int col, int lin, t
     objetosMapa->animacaoCurta = 0;
 }
 
-void drawPlayer(tTexturas *texturas, int lin, int col, int direcao, int animacaoAtual)
+void desenhaJogador(tTexturas *texturas, int lin, int col, int direcao, int animacaoAtual)
 {
 
   int offsetI, offsetJ;
@@ -130,7 +130,7 @@ void drawEndGame(ALLEGRO_FONT *fonte, int pontuacaoTotal)
   al_flip_display();
 }
 
-void drawInstructions(ALLEGRO_FONT *fonte)
+void desenhaInstrucoes(ALLEGRO_FONT *fonte)
 {
   al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0, 0.6));
   al_draw_textf(fonte, al_map_rgb(120, 120, 255), WIDTH / 4 + 7 * SIZE_OBJS, 20 + 2 * SIZE_OBJS, 0, "INSTRUCOES");
@@ -151,7 +151,7 @@ void drawInstructions(ALLEGRO_FONT *fonte)
   al_flip_display();
 }
 
-void drawHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, int pontuacao, int diamantesJogador, int diamantesTotal, tTexturas *texturas, int nivel)
+void desenhaHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, int pontuacao, int diamantesJogador, int diamantesTotal, tTexturas *texturas, int nivel)
 {
   al_clear_to_color(al_map_rgb(0, 0, 0));
   

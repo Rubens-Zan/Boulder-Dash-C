@@ -134,13 +134,3 @@ void destroi_mapa(int **mapa)
   free(mapa[0]);
   free(mapa);
 }
-
-// void destroi_objetos(tObjetos *obj){
-//   free(obj->pedra);
-//   free(obj->diamante - 8);
-//   free(obj->borboleta -8);
-//   free(obj->explosao - 5);
-//   free(obj->vagalume - 8);
-
-//   free(obj);
-// }
