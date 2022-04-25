@@ -3,7 +3,7 @@
 // Função de desenho principal
 void draw(bool redraw, long frames, tNivel *infoNivel, tGame *game)
 {
-  drawHeader(game->font, infoNivel->relogio, infoNivel->jogador->vidas, game->pontuacao, infoNivel->jogador->diamantes, infoNivel->objetosMapa->qtDiamantes, game->texturas, game->level);
+  drawHeader(game->font, infoNivel->relogio, infoNivel->jogador->vidas, game->nivelAtual->pontos, infoNivel->jogador->diamantes, infoNivel->objetosMapa->qtDiamantes, game->texturas, game->level);
   drawMap(infoNivel->mapa, infoNivel->objetosMapa, frames, 22, 40, game->texturas);
   drawPlayer(game->texturas, infoNivel->jogador->lin, infoNivel->jogador->col, infoNivel->jogador->direction, infoNivel->jogador->animacaoAtual);
   al_flip_display();
@@ -135,8 +135,8 @@ void drawInstructions(ALLEGRO_FONT *fonte)
   al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0, 0.6));
   al_draw_textf(fonte, al_map_rgb(120, 120, 255), WIDTH / 4 + 7 * SIZE_OBJS, 20 + 2 * SIZE_OBJS, 0, "INSTRUCOES");
   al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 80 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "Colete todos os diamantes e chegue na saida que sera aberta,");
-  al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 110 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "antes que o tempo acabe. Cuidado com as");
-  al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 140 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "pedras, elas podem cair em cima voce, perdendo uma vida. ");
+  al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 110 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "antes que o tempo acabe. Cuidado com as pedras,");
+  al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 140 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "elas podem cair em cima voce, perdendo uma vida. ");
   al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 170 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "Utilize as setas do teclado para se movimentar");
   al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 200 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "ou as teclas W,S,A,D. ");
 
@@ -168,4 +168,6 @@ void drawHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, int pontuacao, int 
   al_draw_textf(fonte, al_map_rgb(245, 233, 66),WIDTH/2-150, 10, 0, "%d", relogio);
   al_draw_textf(fonte, al_map_rgb(255, 0, 34), 700, 10, 0, "Vidas: %d", vidas);
   al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH - 250, 10, 0, "Help: H/F1");
+  al_draw_bitmap(texturas->creeper, WIDTH-50, 10, 0);
+
 }

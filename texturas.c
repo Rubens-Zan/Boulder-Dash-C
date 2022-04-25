@@ -42,10 +42,10 @@ ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h)
 
 tTexturas *inicializaTexturas(ALLEGRO_BITMAP *sheet)
 {
-  tTexturas *texturas = malloc(sizeof(tTexturas)); 
+  tTexturas *texturas = malloc(sizeof(tTexturas));
   iniciaSpritesObjetos(sheet, texturas);
   iniciaSpritesJogador(sheet, texturas);
-  return texturas; 
+  return texturas;
 }
 
 // CRIA OBJETO CONTENDO AS SPRITES DOS OBJETOS
@@ -92,6 +92,7 @@ void iniciaSpritesObjetos(ALLEGRO_BITMAP *sheet, tTexturas *texturas)
   texturas->vagalume[2] = al_create_sub_bitmap(sheet, 80, 96, 15, 16);
   texturas->vagalume[3] = al_create_sub_bitmap(sheet, 80, 112, 15, 16);
 
+  texturas->creeper = load_bitmap_at_size("resources/img/creeper.png", SIZE_OBJS / 2, SIZE_OBJS / 2);
   texturas->arrowDown = load_bitmap_at_size("resources/img/arrow-down.png", SIZE_OBJS / 2, SIZE_OBJS / 2);
   texturas->arrowUp = load_bitmap_at_size("resources/img/arrow-up.png", SIZE_OBJS / 2, SIZE_OBJS / 2);
 }

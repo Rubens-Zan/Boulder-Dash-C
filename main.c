@@ -21,7 +21,7 @@ int main()
 		case JOGANDO:
 			state_play(game);
 			break;
-		// case FIMPART: state_end(); break;
+		// case FIMPART: state_end(game); break;
 		// case FIMJOGO: state_close(); break;
 		}
 	}

@@ -22,6 +22,8 @@ typedef struct tTexturas
     ALLEGRO_BITMAP *borboleta[4];
     ALLEGRO_BITMAP *vagalume[4];
     ALLEGRO_BITMAP *explosao[4];
+    ALLEGRO_BITMAP *creeper;
+
 } tTexturas; 
 
 tTexturas *inicializaTexturas(ALLEGRO_BITMAP *sheet); 

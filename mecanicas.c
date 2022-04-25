@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include "mecanicas.h"
 
-
 // FUNCOES MOVIMENTAR JOGO
 void movimentaObjetos(int **mapa, tPlayer *jogador, int direcao, tObjetos *objetos, long frames, tAudio *sons)
 {
@@ -90,16 +89,30 @@ void movimentaMonstro(int **mapa, tMonstro *monstro, tPlayer *jogador, tObjetos 
     vertical = -1;
   }
 
-  if (linhaEColunaValidas(monstro->lin + vertical, monstro->col + horizontal) && (mapa[monstro->lin + vertical][monstro->col + horizontal] == VAZIO || mapa[monstro->lin + vertical][monstro->col + horizontal] == PLAYER))
+  if (linhaEColunaValidas(monstro->lin + vertical, monstro->col + horizontal))
   {
-    if (mapa[monstro->lin + vertical][monstro->col + horizontal] == PLAYER)
+
+    int *objPosicao = &mapa[monstro->lin + vertical][monstro->col + horizontal];
+
+    if (*objPosicao == VAZIO || *objPosicao == PLAYER)
     {
-      mataPlayer(jogador, monstro->lin + vertical, monstro->col + horizontal, mapa, objetos, sons);
+      if (*objPosicao == PLAYER)
+      {
+        mataPlayer(jogador, monstro->lin + vertical, monstro->col + horizontal, mapa, objetos, sons);
+      }
+      mapa[monstro->lin][monstro->col] = VAZIO;
+      *objPosicao = monstro->tipo;
+      monstro->lin += vertical;
+      monstro->col += horizontal;
     }
-    mapa[monstro->lin][monstro->col] = VAZIO;
-    mapa[monstro->lin + vertical][monstro->col + horizontal] = monstro->tipo;
-    monstro->lin += vertical;
-    monstro->col += horizontal;
+    else if (monstro->direcaoAtual == UP && (*objPosicao == PEDRA || *objPosicao == DIAMANTE))
+    {
+      mataMonstro(mapa, objetos, monstro->lin + vertical, monstro->col + horizontal, sons);
+    }
+    else
+    {
+      mudaDirecaoMonstro(monstro);
+    }
   }
   else
   {
@@ -163,14 +176,13 @@ void verificaRolamento(int **mapa, tObjetos *objetos, int col, int lin, int roch
     // verifica se esta sobre uma rocha
     if (mapa[lin + 1][col] == PEDRA || mapa[lin + 1][col] == DIAMANTE || mapa[lin + 1][col] == MURO)
     {
-      // verifica rolamento para a direita
+      // verifica rolamento para direita e esquerda, so pode rolar em uma direcao
       if (mapa[lin + 1][col + 1] == VAZIO && mapa[lin][col + 1] == VAZIO)
       {
         direcao = 1;
         rolaRocha(mapa, rocha, lin, col, direcao);
       }
-      // verifica o rolamento para esquerda
-      if (mapa[lin + 1][col - 1] == VAZIO && mapa[lin][col - 1] == VAZIO)
+      else if (mapa[lin + 1][col - 1] == VAZIO && mapa[lin][col - 1] == VAZIO)
       {
         direcao = -1;
         rolaRocha(mapa, rocha, lin, col, direcao);
@@ -204,7 +216,7 @@ void explodeEmVolta(int **mapa, tObjetos *objetos, int lin, int col, tAudio *son
         }
         mapa[lin + i][col + j] = EXPLOSAO;
 
-        // al_play_sample_instance(sons->explosion);
+        al_play_sample_instance(sons->explosion);
       }
     }
   }
@@ -224,7 +236,7 @@ void mataPlayer(tPlayer *jogador, int lin, int col, int **mapa, tObjetos *objeto
 
 void destroiRocha(tObjetos *objetos, int **mapa, int lin, int col, tAudio *sons)
 {
-  // al_play_sample_instance(sons->collect_diamond);
+  al_play_sample_instance(sons->collectDiamond);
 
   for (int i = 0; i < objetos->totalRochas; i++)
   {
@@ -275,22 +287,18 @@ void atualizaPlayer(tPlayer *jogador)
   if (jogador->direction == UP)
   {
     jogador->lin -= jogador->vel;
-    jogador->tired = 0;
   }
   if (jogador->direction == BOTTOM)
   {
     jogador->lin += jogador->vel;
-    jogador->tired = 0;
   }
   if (jogador->direction == LEFT)
   {
     jogador->col -= jogador->vel;
-    jogador->tired = 0;
   }
   if (jogador->direction == RIGHT)
   {
     jogador->col += jogador->vel;
-    jogador->tired = 0;
   }
 
   jogador->direction = STOP;

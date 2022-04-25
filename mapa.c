@@ -76,8 +76,6 @@ int **iniciaMapa(char *pathMapa, tObjetos *obj, tPlayer *jogador)
   return mapa;
 }
 
-
-
 void iniciaPedrasEDiamantes(int **mapa, tObjetos *objetos)
 {
   int pedraAux = 0;

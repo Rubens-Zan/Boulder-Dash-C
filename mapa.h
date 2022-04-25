@@ -22,13 +22,7 @@
 #define FIREFLY 11
 #define BUTTERFLY 12
 #define AMOEBA 13
-
-#define M_FPS 10.0
-#define R_FPS 6.0
-#define S_FPS 3.0
-#define SCREEN_WIDTH 1366
-#define SCREEN_HEIGHT 768
-#define SIZE 40.0
+#define CREEPER 14
 
 #define TOTAL_LINHAS 22
 #define TOTAL_COLUNAS 40
@@ -47,26 +41,16 @@ typedef struct
 
 typedef struct tPlayer
 {
-  int pontuacao;
-  int diamantes;
-  int direction;
-  int animacaoAtual;
-  int tired;
-  int vivo, vidas;
-  int lin, col, linInicial, colInicial;
+  int diamantes,direction, animacaoAtual;
+  int vidas;
   int vel;
+  int lin, col, linInicial, colInicial;
 } tPlayer;
 
 typedef struct tObjetos
 {
   rochedos *rochedos;
   tMonstro *monstros;
-  ALLEGRO_BITMAP *vazio,*saida,*pedra, *metal, *muro,*terra, *arrowUp, *arrowDown;
-  ALLEGRO_BITMAP *amoeba[8];
-  ALLEGRO_BITMAP *diamante[8];
-  ALLEGRO_BITMAP *borboleta[4];
-  ALLEGRO_BITMAP *vagalume[4];
-  ALLEGRO_BITMAP *explosao[4];
   int qtPedras, qtMonstros, qtDiamantes, totalRochas;
   int animacaoCurta, animacaoLonga;
   int saidaAtiva;
