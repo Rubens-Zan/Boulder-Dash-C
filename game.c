@@ -199,7 +199,7 @@ void alteraNivel(tGame *game, int novo, int venceu)
 
   if (novo > 10)
   {
-    fprintf(stderr,"Não existem niveis apos esse\n");
+    fprintf(stderr, "Não existem niveis apos esse\n");
   }
   else if (novo < 1)
   {
@@ -207,15 +207,15 @@ void alteraNivel(tGame *game, int novo, int venceu)
   }
   else
   {
-    // if (!venceu)
-    // {
-    //   game->pontuacao[game->level - 1] = 0;
-    // }
-    // else
-    // {
+    if (!venceu)
+    {
+      game->pontuacao[game->level - 1] = 0;
+    }
+    else
+    {
       // jogador ganha ponto extras conforme a velocidade para completar o nivel
-    // game->pontuacao[game->level - 1] += game->nivelAtual->relogio * 2;
-    // }
+      game->pontuacao[game->level - 1] += game->nivelAtual->relogio * 2;
+    }
 
     destroiNivel(game->nivelAtual);
 
@@ -290,7 +290,6 @@ void state_play(tGame *game)
   al_flush_event_queue(queue);
   memset(keys, 0, sizeof(keys));
   al_start_timer(timer);
-  tNivel *nivel = game->nivelAtual;
 
   al_play_sample_instance(game->sonsJogo->music);
 
@@ -315,13 +314,13 @@ void state_play(tGame *game)
 
       break;
     case ALLEGRO_EVENT_TIMER:
-      verificaEntrada(keys, &done, redraw, nivel->jogador, frames);
-      movimentaObjetos(nivel->mapa, nivel->jogador, nivel->jogador->direction, nivel->objetosMapa, frames, game->sonsJogo);
-      if (testaMapa(nivel->mapa, nivel->jogador, nivel->objetosMapa, frames, game->sonsJogo, game))
-        atualizaPlayer(nivel->jogador);
-      if (frames % 60 == 0 && nivel->relogio > 0)
+      verificaEntrada(keys, &done, redraw, game->nivelAtual->jogador, frames);
+      movimentaObjetos(game->nivelAtual->mapa, game->nivelAtual->jogador, game->nivelAtual->jogador->direction, game->nivelAtual->objetosMapa, frames, game->sonsJogo);
+      if (testaMapa(game->nivelAtual->mapa, game->nivelAtual->jogador, game->nivelAtual->objetosMapa, frames, game->sonsJogo, game))
+        atualizaPlayer(game->nivelAtual->jogador);
+      if (frames % 60 == 0 && game->nivelAtual->relogio > 0)
       {
-        nivel->relogio--;
+        game->nivelAtual->relogio--;
       }
       break;
     case ALLEGRO_EVENT_KEY_DOWN:
@@ -344,9 +343,9 @@ void state_play(tGame *game)
       done = true;
     }
     if (redraw && al_is_event_queue_empty(queue))
-      draw(redraw, frames, nivel, game);
+      draw(redraw, frames, game->nivelAtual, game);
 
-    if (nivel->relogio == 0 || nivel->jogador->vidas == 0)
+    if (game->nivelAtual->relogio == 0 || game->nivelAtual->jogador->vidas == 0)
     {
       alteraNivel(game, game->level, 0);
     }
