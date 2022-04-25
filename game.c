@@ -173,15 +173,12 @@ tObjetos *iniciaObjetos()
 
 // O easter egg vai explodir todas as pedras
 void executaEasterEgg(int **mapa, rochedos *rochas, int totalRochas, tAudio *sons){
-  printf("executando estaer"); 
-
-  for (int i=0;i++;i< 22){
+  for (int i=0;i< 22;i++){
     for (int j=0;j<40;j++){
-      if (mapa[i][j] == PEDRA)
+      if (mapa[i][j] == PEDRA){
         mapa[i][j] = EXPLOSAO;
         al_play_sample_instance(sons->explosion);
-
-
+      }
     }
   }
 
@@ -322,16 +319,16 @@ void state_play(tGame *game)
     // Indica que um botao do mouse foi pressionado.
     case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
       // checa se o clique eh no botao down
-      if (event.mouse.x > 130 && event.mouse.x <= 160 && event.mouse.y <= 20)
+      if (event.mouse.x > 130 && event.mouse.x <= 160 && event.mouse.y <= 30)
       {
         alteraNivel(game, game->level - 1, 0);
       }
       // checa se o clique eh no botao up
-      if (event.mouse.x >= 170 && event.mouse.x <= 200 && event.mouse.y <= 20)
+      else if (event.mouse.x >= 170 && event.mouse.x <= 200 && event.mouse.y <= 30)
       {
         alteraNivel(game, game->level + 1, 0);
       }
-      if (event.mouse.x >= WIDTH- 100 && event.mouse.x <= WIDTH && event.mouse.y <= 20){
+      else if (event.mouse.x >= WIDTH- 100 && event.mouse.x <= WIDTH && event.mouse.y <= 30){
         executaEasterEgg(game->nivelAtual->mapa,game->nivelAtual->objetosMapa->rochedos,game->nivelAtual->objetosMapa->totalRochas, game->sonsJogo); 
       }
 
