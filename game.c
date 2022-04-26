@@ -316,6 +316,10 @@ void state_serve(tGame *game)
       game->state = FIMPART;
       done = true;
     }
+    // se clicou no botao de fechar
+    else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
+      game->state= FIMJOGO;
+    }
     if (done)
       break;
   }
@@ -323,6 +327,7 @@ void state_serve(tGame *game)
 
 void state_play(tGame *game)
 {
+  // inicializando as variaveis
   bool done = false;
   bool redraw = true;
   long frames = 0;
@@ -331,11 +336,12 @@ void state_play(tGame *game)
   al_start_timer(timer);
   for (int i=0;i < ALLEGRO_KEY_MAX;i++)keys[i] = 0;
 
+  // comeca a tocar o som de background
   al_play_sample_instance(game->sonsJogo->music);
 
   while (1)
   {
-
+    // espera pela interacao do jogador
     al_wait_for_event(queue, &event);
 
     switch (event.type)
@@ -389,7 +395,13 @@ void state_play(tGame *game)
     }
     if (redraw && al_is_event_queue_empty(queue))
       desenhaTela(redraw, frames, game->nivelAtual, game);
-
+    // se pressionou esc vai p tela de fim da partida
+    if(keys[ALLEGRO_KEY_ESCAPE])
+      game->state= FIMPART;
+    // se clicou no botao de fechar a tela
+    if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
+      game->state= FIMJOGO;
+    }
     if (game->nivelAtual->relogio == 0 || game->nivelAtual->jogador->vidas == 0)
     {
       alteraNivel(game, game->level, 0);
@@ -417,7 +429,7 @@ void state_close(tGame *game)
   // // destroiAudios(game->sonsJogo); 
   free(game->texturas); 
   free(game); 
-  exit(1); 
+  exit(0); 
 
 }
 
