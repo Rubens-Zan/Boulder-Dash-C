@@ -29,7 +29,7 @@ tTexturas *inicializaTexturas(ALLEGRO_BITMAP *sheet);
 void iniciaSpritesObjetos(ALLEGRO_BITMAP *sheet, tTexturas *texturas);
 void iniciaSpritesJogador(ALLEGRO_BITMAP *sheet, tTexturas *texturas);
 void destroiSpritesObjetos(tTexturas *texturas);
-void destroi_sprites_player(tTexturas *texturas);
+void destroiSpritesPlayer(tTexturas *texturas);
 ALLEGRO_BITMAP *carregaBitmapEmTamanhoFixo(const char *filename, int w, int h);
 
 #endif

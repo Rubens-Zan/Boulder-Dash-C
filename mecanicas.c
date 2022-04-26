@@ -31,12 +31,12 @@ void movimentaObjetos(int **mapa, tPlayer *jogador, int direcao, tObjetos *objet
             mataPlayer(jogador, lin + 1, col, mapa, objetos, sons);
           }
 
-          if (mapa[lin + 1][col] == BUTTERFLY)
+          if (mapa[lin + 1][col] == BUTTERFLY || mapa[lin + 1][col] == FIREFLY)
           {
             mataMonstro(mapa, objetos, lin + 1, col, sons);
           }
 
-          if (mapa[lin + 1][col] != VAZIO && mapa[lin + 1][col] != PLAYER && mapa[lin + 1][col])
+          if (mapa[lin + 1][col] != VAZIO && mapa[lin + 1][col])
           {
             rochedoAtual->caindo = 0;
           }
@@ -105,7 +105,7 @@ void movimentaMonstro(int **mapa, tMonstro *monstro, tPlayer *jogador, tObjetos 
       monstro->lin += vertical;
       monstro->col += horizontal;
     }
-    else if (monstro->direcaoAtual == UP && (*objPosicao == PEDRA || *objPosicao == DIAMANTE))
+    else if ((*objPosicao == PEDRA || *objPosicao == DIAMANTE) && monstro->direcaoAtual == UP)
     {
       mataMonstro(mapa, objetos, monstro->lin + vertical, monstro->col + horizontal, sons);
     }
@@ -249,15 +249,18 @@ void destroiRocha(tObjetos *objetos, int **mapa, int lin, int col, tAudio *sons)
 
 void mataMonstro(int **mapa, tObjetos *objetos, int lin, int col, tAudio *sons)
 {
+  printf("mata monstro (%d,%d) \n", lin,col); 
+
   for (int i = 0; i < objetos->qtMonstros; i++)
   {
-    tMonstro *monstroAux = &objetos->monstros[0];
-
+    // vusca o monstro a ser morto por meio da posicao que o monstro a ser morto esta
+    tMonstro *monstroAux = &objetos->monstros[i];
     if (monstroAux->lin == lin && monstroAux->col == col)
     {
       monstroAux->ativo = 0;
       explodeEmVolta(mapa, objetos, lin, col, sons);
 
+      // Quando a borboleta eh explodida, gera um diamante no lugar
       if (monstroAux->tipo == BUTTERFLY)
       {
         mapa[monstroAux->lin][monstroAux->col] = DIAMANTE;

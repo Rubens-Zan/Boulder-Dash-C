@@ -206,6 +206,7 @@ tNivel *iniciaNivel(int level)
   char *path = pegaPath(level);
   nivel->mapa = iniciaMapa(path, nivel->objetosMapa, nivel->jogador);
   nivel->relogio = 150;
+
 }
 
 void destroiNivel(tNivel *nivel)
@@ -213,9 +214,25 @@ void destroiNivel(tNivel *nivel)
   free(nivel->jogador);
   free(nivel->mapa[0]);
   free(nivel->mapa);
+  free(nivel->objetosMapa->rochedos);
+  free(nivel->objetosMapa->monstros);
+  
   free(nivel->objetosMapa);
   free(nivel);
 }
+
+void destroiAudios(tAudio* sons){
+  al_destroy_sample(sons->soundBoulder);
+  al_destroy_sample(sons->soundDiamond);
+  al_destroy_sample(sons->soundDoor);
+  al_destroy_sample(sons->soundExplosion);
+  al_destroy_sample(sons->soundMelody);
+  al_destroy_sample(sons->soundStart);
+  al_destroy_sample(sons->soundWalkEmpty);
+  al_destroy_sample(sons->soundWalkEarth); 
+}
+
+
 
 void alteraNivel(tGame *game, int novo, int venceu)
 {
@@ -311,13 +328,14 @@ void state_play(tGame *game)
   long frames = 0;
   int morreu, ganhou = 0;
   al_flush_event_queue(queue);
-  memset(keys, 0, sizeof(keys));
   al_start_timer(timer);
+  for (int i=0;i < ALLEGRO_KEY_MAX;i++)keys[i] = 0;
 
   al_play_sample_instance(game->sonsJogo->music);
 
   while (1)
   {
+
     al_wait_for_event(queue, &event);
 
     switch (event.type)
@@ -386,13 +404,7 @@ void state_play(tGame *game)
 // Mostra a tela de high score e verifica se o player deseja continuar jogando
 void state_end(tGame *game)
 {
-  int scores[10];
-  int nScores = 0; 
-  carregarScores("resources/scores.txt", scores, nScores);
-
-  for (int i=0;i < nScores;i++){
-    printf("%d \n ", scores[nScores]);
-  }
+  game->state = FIMJOGO; 
 
 }
 
@@ -400,6 +412,13 @@ void state_end(tGame *game)
 void state_close(tGame *game)
 {
   destroiNivel(game->nivelAtual);
+  destroiSpritesObjetos(game->texturas);
+  destroiSpritesPlayer(game->texturas); 
+  // // destroiAudios(game->sonsJogo); 
+  free(game->texturas); 
+  free(game); 
+  exit(1); 
+
 }
 
 int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames, tAudio *sons, tGame *game)

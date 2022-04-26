@@ -138,7 +138,7 @@ void destroiSpritesObjetos(tTexturas *texturas)
 }
 
 // Funcao para destroir as sprites carregadas do player
-void destroi_sprites_player(tTexturas *texturas)
+void destroiSpritesPlayer(tTexturas *texturas)
 {
   for (int i = 0; i < 7; i++)
     al_destroy_bitmap(texturas->jogadorParado[i]);
