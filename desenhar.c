@@ -1,4 +1,5 @@
 #include "desenhar.h"
+#include <stdio.h>
 
 // Função de desenho principal
 void desenhaTela(bool redraw, long frames, tNivel *infoNivel, tGame *game)
@@ -121,17 +122,17 @@ void desenhaJogador(tTexturas *texturas, int lin, int col, int direcao, int anim
 void desenhaFim(ALLEGRO_FONT *fonte, int totalPontos, int *pontuacoes, int nPontuacoes)
 {
 
-  al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0,0.6));
+  al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0, 0.6));
   al_draw_textf(fonte, al_map_rgb(255, 255, 161), WIDTH / 4 + 7 * SIZE_OBJS, 20 + 2 * SIZE_OBJS, 0, "FIM DO JOGO");
-  al_draw_textf(fonte, al_map_rgb(255,255,255),  120, 80 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "SEU SCORE FOI: %d",totalPontos);
+  al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 80 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "SEU SCORE FOI: %d", totalPontos);
 
   al_draw_textf(fonte, al_map_rgb(255, 255, 161), WIDTH / 4 + 7 * SIZE_OBJS, 160 + 2 * SIZE_OBJS, 0, "HIGHSCORES");
-  for (int i=0; i < nPontuacoes && i< 10;i++)
-    al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 180+ 25*i + 2 * SIZE_OBJS, 0, "%d: %d",i+1,pontuacoes[i]);
+  for (int i = 0; i < nPontuacoes+1 && i < 10; i++)
+    al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 180 + 25 * i + 2 * SIZE_OBJS, 0, "%d: %d", i + 1, pontuacoes[i]);
+  
 
   al_flip_display();
 }
-
 
 void desenhaInstrucoes(ALLEGRO_FONT *fonte)
 {

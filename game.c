@@ -396,10 +396,11 @@ void state_play(tGame *game)
     if (redraw && al_is_event_queue_empty(queue))
       desenhaTela(redraw, frames, game->nivelAtual, game);
     // se pressionou esc vai p tela de fim da partida
-    if (keys[ALLEGRO_KEY_ESCAPE]){
+    if (keys[ALLEGRO_KEY_ESCAPE])
+    {
       keys[ALLEGRO_KEY_ESCAPE] = 0;
       game->state = FIMPART;
-      done = true; 
+      done = true;
     }
     // se clicou no botao de fechar a tela
     if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -427,15 +428,14 @@ void state_end(tGame *game)
     totalPontos += game->pontuacao[i];
 
   int pontuacoes[12];
-  int nPontuacoes = 0; 
+  int nPontuacoes = 0;
 
-  carregaScores(pontuacoes, &nPontuacoes); 
+  carregaScores(pontuacoes, &nPontuacoes);
   salvaScoreAtual(totalPontos, pontuacoes, nPontuacoes);
 
-  
   while (1)
-  { 
-    desenhaFim(game->font, totalPontos, pontuacoes, 6);
+  {
+    desenhaFim(game->font, totalPontos, pontuacoes, nPontuacoes);
     al_wait_for_event(queue, &event);
     if (al_is_event_queue_empty(queue))
       desenhaInstrucoes(game->font);
@@ -449,7 +449,7 @@ void state_end(tGame *game)
       break;
     }
     // Caso ESC seja pressionado, fim partida
-    if (keys[ALLEGRO_KEY_ESCAPE] || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE )
+    if (keys[ALLEGRO_KEY_ESCAPE] || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
     {
       keys[ALLEGRO_KEY_ESCAPE] = 0;
       game->state = FIMJOGO;
@@ -457,8 +457,8 @@ void state_end(tGame *game)
       done = true;
     }
 
-    if(done)
-      break; 
+    if (done)
+      break;
   }
 }
 

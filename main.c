@@ -4,10 +4,9 @@
 
 int main()
 {
-	tGame *game = malloc(sizeof(tGame)); 
-	game->state = INICIO; 
-	
-	
+	tGame *game = malloc(sizeof(tGame));
+	game->state = INICIO;
+
 	while (1)
 	{
 		switch (game->state)
@@ -21,9 +20,14 @@ int main()
 		case JOGANDO:
 			state_play(game);
 			break;
-		case FIMPART: state_end(game); break;
-		case FIMJOGO: state_close(game); break;
-		default: break; 
+		case FIMPART:
+			state_end(game);
+			break;
+		case FIMJOGO:
+			state_close(game);
+			break;
+		default:
+			break;
 		}
 	}
 	return 0;

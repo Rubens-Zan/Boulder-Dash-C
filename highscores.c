@@ -37,11 +37,11 @@ void salvaScoreAtual(int pontosJogador, int *highscores, int nPontuacoes)
     fprintf(stderr, "Não foi possivel inicializar o arquivo de highscore\n");
     exit(1);
   }
-  highscores[nPontuacoes + 1] = pontosJogador;
-  qsort(&highscores, nPontuacoes+1, sizeof(int), cmpfunc);
+  highscores[nPontuacoes] = pontosJogador;
+  qsort(highscores, nPontuacoes, sizeof(int), cmpfunc);
 
   // so entra no ranking se for top 10
-  for (int i = 0; i < nPontuacoes && i < 10; i++)
+  for (int i = 0; i <= nPontuacoes && i < 10; i++)
   {
     fprintf(arq, "%d\n", highscores[i]);
   }
