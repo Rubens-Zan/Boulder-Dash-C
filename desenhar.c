@@ -1,7 +1,7 @@
 #include "desenhar.h"
 #include <stdio.h>
 
-// Função de desenho principal
+// funcao para desenhar a tela
 void desenhaTela(bool redraw, long frames, tNivel *infoNivel, tGame *game)
 {
   desenhaHeader(game->font, infoNivel->relogio, infoNivel->jogador->vidas, game->nivelAtual->pontos, infoNivel->jogador->diamantes, infoNivel->objetosMapa->qtDiamantes, game->texturas, game->level);
@@ -11,6 +11,7 @@ void desenhaTela(bool redraw, long frames, tNivel *infoNivel, tGame *game)
   redraw = false;
 }
 
+// funcao para desenhar o mapa do jogo
 void desenhaMapa(int **mapa, tObjetos *objetosMapa, long frames, int col, int lin, tTexturas *texturas)
 {
   int i, j, scaledI, scaledJ;
@@ -92,6 +93,7 @@ void desenhaMapa(int **mapa, tObjetos *objetosMapa, long frames, int col, int li
     objetosMapa->animacaoCurta = 0;
 }
 
+// funcao para desenhar o jogador
 void desenhaJogador(tTexturas *texturas, int lin, int col, int direcao, int animacaoAtual)
 {
 
@@ -119,21 +121,24 @@ void desenhaJogador(tTexturas *texturas, int lin, int col, int direcao, int anim
   }
 }
 
+// funcao para desenhar a tela de fim do jogo
 void desenhaFim(ALLEGRO_FONT *fonte, int totalPontos, int *pontuacoes, int nPontuacoes)
 {
+  int centro = WIDTH / 4 + 7 * SIZE_OBJS;
 
   al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0, 0.6));
-  al_draw_textf(fonte, al_map_rgb(255, 255, 161), WIDTH / 4 + 7 * SIZE_OBJS, 20 + 2 * SIZE_OBJS, 0, "FIM DO JOGO");
-  al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 80 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "SEU SCORE FOI: %d", totalPontos);
+  al_draw_textf(fonte, al_map_rgb(255, 255, 161), centro, 20 + 2 * SIZE_OBJS, 0, "FIM DO JOGO");
+  al_draw_textf(fonte, al_map_rgb(255, 184, 97), 120, 80 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "SEU SCORE FOI: %d", totalPontos);
 
-  al_draw_textf(fonte, al_map_rgb(255, 255, 161), WIDTH / 4 + 7 * SIZE_OBJS, 160 + 2 * SIZE_OBJS, 0, "HIGHSCORES");
-  for (int i = 0; i < nPontuacoes+1 && i < 10; i++)
-    al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 180 + 25 * i + 2 * SIZE_OBJS, 0, "%d: %d", i + 1, pontuacoes[i]);
-  
+  al_draw_textf(fonte, al_map_rgb(255, 255, 161), centro, 160 + 2 * SIZE_OBJS, 0, "HIGHSCORES");
+  // Desenha apenas no maximo as 10 primeiras pontuacoes
+  for (int i = 0; i < nPontuacoes + 1 && i < 10; i++)
+    al_draw_textf(fonte, al_map_rgb(245, 209, 66), centro, 200 + 25 * i + 2 * SIZE_OBJS, 0, "%d: %d", i + 1, pontuacoes[i]);
 
   al_flip_display();
 }
 
+// funcao para desenhar modal de instrucoes do jogo
 void desenhaInstrucoes(ALLEGRO_FONT *fonte)
 {
   al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0, 0.6));
@@ -155,6 +160,7 @@ void desenhaInstrucoes(ALLEGRO_FONT *fonte)
   al_flip_display();
 }
 
+// funcao para desenhar o header da tela do jogo
 void desenhaHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, int pontuacao, int diamantesJogador, int diamantesTotal, tTexturas *texturas, int nivel)
 {
   al_clear_to_color(al_map_rgb(0, 0, 0));

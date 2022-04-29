@@ -1,6 +1,5 @@
 # Implementação do jogo Boulder Dash
-
-Esse projeto foi feito para a disciplina de Programação 2. 
+Esse projeto foi feito para a disciplina de Programação 2, a partir da biblioteca para implementação de gogos gráficos Allegro 5, com a linguagem C. 
 
 ## Compilação 
 Compila a partir do C, utilizando comandos make.  
@@ -22,3 +21,6 @@ pontuação = 10* _nº diamantes coletados_+2*_tempo restante_
 Todo mundo que já jogou Minecraft sabe como era frustrante quando você ficava horas construindo algo e um creeper chegava perto de você e destruia tudo.
 Então, visando limpar a imagem dos Creepers, nesse jogo resolvi que o creeper ajuda o jogador de uma maneira explosiva. 
 Para tal, no canto superior direito da tela tem um ícone com um creeper, ao clicar nesse ícone, todas as pedras do nível são destruídas, porém cuidado, caso todas as pedras sejam destruídas, os monstros viverão livremente sem perigos. 
+
+## Autor 
+Rubens Zandomenighi Laszlo

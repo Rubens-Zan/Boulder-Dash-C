@@ -1,17 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "texturas.h"
 
 ALLEGRO_BITMAP *carregaBitmapEmTamanhoFixo(const char *filename, int w, int h)
 {
   ALLEGRO_BITMAP *bmpRedimensionado, *bmpCarregado, *versaoAnterior;
 
-  // 1. create a temporary bitmap of size we want
+  // Cria o bitmap redimensionado
   bmpRedimensionado = al_create_bitmap(w, h);
   if (!bmpRedimensionado)
     return NULL;
 
-  // 2. load the bitmap at the original size
+  // Carrega a imagem no bitmap
   bmpCarregado = al_load_bitmap(filename);
   if (!bmpCarregado)
   {
@@ -19,21 +17,20 @@ ALLEGRO_BITMAP *carregaBitmapEmTamanhoFixo(const char *filename, int w, int h)
     return NULL;
   }
 
-  // 3. set the target bitmap to the resized bmp
+  // Move o bitmap carregado para os parametro passado como redimensionamento
   versaoAnterior = al_get_target_bitmap();
   al_set_target_bitmap(bmpRedimensionado);
 
-  // 4. copy the loaded bitmap to the resized bmp
+  // Copia o bitmap carregado para o redimensionado
   al_draw_scaled_bitmap(bmpCarregado,
-                        0, 0,                               // source origin
-                        al_get_bitmap_width(bmpCarregado),  // source width
-                        al_get_bitmap_height(bmpCarregado), // source height
-                        0, 0,                               // target origin
-                        w, h,                               // target dimensions
-                        0                                   // flags
-  );
+                        0, 0,
+                        al_get_bitmap_width(bmpCarregado),
+                        al_get_bitmap_height(bmpCarregado),
+                        0, 0,
+                        w, h,
+                        0);
 
-  // 5. restore the previous target and clean up
+  // Destroi o bitmap carregado que nao sera utilizado
   al_set_target_bitmap(versaoAnterior);
   al_destroy_bitmap(bmpCarregado);
 

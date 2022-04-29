@@ -16,7 +16,7 @@ void carregaScores(int *pontos, int *nPontuacoes)
   for (int i = 0; i < 10 && !feof(arq); i++)
   {
     fscanf(arq, "%d", &pontos[i]);
-    *nPontuacoes+=1;
+    *nPontuacoes += 1;
   }
 
   fclose(arq);
@@ -38,12 +38,13 @@ void salvaScoreAtual(int pontosJogador, int *highscores, int nPontuacoes)
     exit(1);
   }
   highscores[nPontuacoes] = pontosJogador;
-  qsort(highscores, nPontuacoes, sizeof(int), cmpfunc);
+  qsort(highscores, nPontuacoes + 1, sizeof(int), cmpfunc);
 
   // so entra no ranking se for top 10
-  for (int i = 0; i <= nPontuacoes && i < 10; i++)
+  fprintf(arq, "%d", highscores[0]);
+  for (int i = 1; i <= nPontuacoes && i < 10; i++)
   {
-    fprintf(arq, "%d\n", highscores[i]);
+    fprintf(arq, "\n%d", highscores[i]);
   }
 
   fclose(arq);

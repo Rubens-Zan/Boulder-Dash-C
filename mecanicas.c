@@ -249,7 +249,7 @@ void destroiRocha(tObjetos *objetos, int **mapa, int lin, int col, tAudio *sons)
 
 void mataMonstro(int **mapa, tObjetos *objetos, int lin, int col, tAudio *sons)
 {
-  printf("mata monstro (%d,%d) \n", lin,col); 
+  printf("mata monstro (%d,%d) \n", lin, col);
 
   for (int i = 0; i < objetos->qtMonstros; i++)
   {

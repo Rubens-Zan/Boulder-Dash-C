@@ -23,7 +23,6 @@ ALLEGRO_DISPLAY *disp;
 unsigned char keys[ALLEGRO_KEY_MAX];
 
 // Funcoes para inicializacao do jogo
-
 void testaAllegro(bool ok, char *descricao)
 {
   if (ok)
@@ -139,6 +138,7 @@ char *pegaPath(int level)
 
   return path;
 }
+
 // Funcao para inicializacao do jogador
 tPlayer *iniciaJogador()
 {
@@ -172,7 +172,7 @@ tObjetos *iniciaObjetos()
   obj->animacaoLonga = 0;
 }
 
-// O easter egg vai explodir todas as pedras
+// Funcao para executar o esater egg, explodindo todas as pedras
 void executaEasterEgg(int **mapa, rochedos *rochas, int totalRochas, tAudio *sons)
 {
   for (int i = 0; i < 22; i++)
@@ -263,6 +263,7 @@ void alteraNivel(tGame *game, int novo, int venceu)
 }
 
 // ESTADOS DO JOGO
+// funcao para estado inicial
 void state_init(tGame *game)
 {
 
@@ -280,6 +281,7 @@ void state_init(tGame *game)
   game->state = JOGANDO;
 }
 
+// funcao para estado de mostrando a tela de ajuda
 void state_serve(tGame *game)
 {
   bool done = false;
@@ -324,6 +326,7 @@ void state_serve(tGame *game)
   }
 }
 
+// funcao para o estado de jogando
 void state_play(tGame *game)
 {
   // inicializando as variaveis
@@ -462,18 +465,19 @@ void state_end(tGame *game)
   }
 }
 
-// Finaliza o jogo
+// Finaliza o jogo, liberando espacos alocados
 void state_close(tGame *game)
 {
   destroiNivel(game->nivelAtual);
   destroiSpritesObjetos(game->texturas);
   destroiSpritesPlayer(game->texturas);
-  // // destroiAudios(game->sonsJogo);
   free(game->texturas);
   free(game);
   exit(0);
 }
+// ESTADOS DO JOGO FIM
 
+// Funcoes para testagem de possibilidade de movimentacao do jogo
 int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames, tAudio *sons, tGame *game)
 {
   int colAtual, linAtual, horizontalOffset, verticalOffset, ok;
