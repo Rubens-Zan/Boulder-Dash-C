@@ -23,6 +23,7 @@ int main()
 			break;
 		case FIMPART: state_end(game); break;
 		case FIMJOGO: state_close(game); break;
+		default: break; 
 		}
 	}
 	return 0;

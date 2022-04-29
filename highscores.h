@@ -2,6 +2,7 @@
 #define __HIGHSCORES__
 
 
-void carregarScores(char *nome_arquivo, int *scores, int nScores);
+void carregaScores(int *pontos, int *nPontuacoes); 
+void salvaScoreAtual(int pontosJogador, int* highscores, int nPontuacoes);
 
 #endif

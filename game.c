@@ -206,7 +206,6 @@ tNivel *iniciaNivel(int level)
   char *path = pegaPath(level);
   nivel->mapa = iniciaMapa(path, nivel->objetosMapa, nivel->jogador);
   nivel->relogio = 150;
-
 }
 
 void destroiNivel(tNivel *nivel)
@@ -216,12 +215,13 @@ void destroiNivel(tNivel *nivel)
   free(nivel->mapa);
   free(nivel->objetosMapa->rochedos);
   free(nivel->objetosMapa->monstros);
-  
+
   free(nivel->objetosMapa);
   free(nivel);
 }
 
-void destroiAudios(tAudio* sons){
+void destroiAudios(tAudio *sons)
+{
   al_destroy_sample(sons->soundBoulder);
   al_destroy_sample(sons->soundDiamond);
   al_destroy_sample(sons->soundDoor);
@@ -229,10 +229,8 @@ void destroiAudios(tAudio* sons){
   al_destroy_sample(sons->soundMelody);
   al_destroy_sample(sons->soundStart);
   al_destroy_sample(sons->soundWalkEmpty);
-  al_destroy_sample(sons->soundWalkEarth); 
+  al_destroy_sample(sons->soundWalkEarth);
 }
-
-
 
 void alteraNivel(tGame *game, int novo, int venceu)
 {
@@ -317,8 +315,9 @@ void state_serve(tGame *game)
       done = true;
     }
     // se clicou no botao de fechar
-    else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
-      game->state= FIMJOGO;
+    else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+    {
+      game->state = FIMJOGO;
     }
     if (done)
       break;
@@ -334,7 +333,8 @@ void state_play(tGame *game)
   int morreu, ganhou = 0;
   al_flush_event_queue(queue);
   al_start_timer(timer);
-  for (int i=0;i < ALLEGRO_KEY_MAX;i++)keys[i] = 0;
+  for (int i = 0; i < ALLEGRO_KEY_MAX; i++)
+    keys[i] = 0;
 
   // comeca a tocar o som de background
   al_play_sample_instance(game->sonsJogo->music);
@@ -396,11 +396,15 @@ void state_play(tGame *game)
     if (redraw && al_is_event_queue_empty(queue))
       desenhaTela(redraw, frames, game->nivelAtual, game);
     // se pressionou esc vai p tela de fim da partida
-    if(keys[ALLEGRO_KEY_ESCAPE])
-      game->state= FIMPART;
+    if (keys[ALLEGRO_KEY_ESCAPE]){
+      keys[ALLEGRO_KEY_ESCAPE] = 0;
+      game->state = FIMPART;
+      done = true; 
+    }
     // se clicou no botao de fechar a tela
-    if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
-      game->state= FIMJOGO;
+    if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+    {
+      game->state = FIMJOGO;
     }
     if (game->nivelAtual->relogio == 0 || game->nivelAtual->jogador->vidas == 0)
     {
@@ -416,8 +420,46 @@ void state_play(tGame *game)
 // Mostra a tela de high score e verifica se o player deseja continuar jogando
 void state_end(tGame *game)
 {
-  game->state = FIMJOGO; 
+  int totalPontos = 0;
+  bool done = false;
 
+  for (int i = 0; i < 10; i++)
+    totalPontos += game->pontuacao[i];
+
+  int pontuacoes[12];
+  int nPontuacoes = 0; 
+
+  carregaScores(pontuacoes, &nPontuacoes); 
+  salvaScoreAtual(totalPontos, pontuacoes, nPontuacoes);
+
+  
+  while (1)
+  { 
+    desenhaFim(game->font, totalPontos, pontuacoes, 6);
+    al_wait_for_event(queue, &event);
+    if (al_is_event_queue_empty(queue))
+      desenhaInstrucoes(game->font);
+    switch (event.type)
+    {
+    case ALLEGRO_EVENT_KEY_DOWN:
+      keys[event.keyboard.keycode] = KEY_SEEN | KEY_RELEASED;
+      break;
+    case ALLEGRO_EVENT_KEY_UP:
+      keys[event.keyboard.keycode] &= KEY_RELEASED;
+      break;
+    }
+    // Caso ESC seja pressionado, fim partida
+    if (keys[ALLEGRO_KEY_ESCAPE] || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE )
+    {
+      keys[ALLEGRO_KEY_ESCAPE] = 0;
+      game->state = FIMJOGO;
+
+      done = true;
+    }
+
+    if(done)
+      break; 
+  }
 }
 
 // Finaliza o jogo
@@ -425,12 +467,11 @@ void state_close(tGame *game)
 {
   destroiNivel(game->nivelAtual);
   destroiSpritesObjetos(game->texturas);
-  destroiSpritesPlayer(game->texturas); 
-  // // destroiAudios(game->sonsJogo); 
-  free(game->texturas); 
-  free(game); 
-  exit(0); 
-
+  destroiSpritesPlayer(game->texturas);
+  // // destroiAudios(game->sonsJogo);
+  free(game->texturas);
+  free(game);
+  exit(0);
 }
 
 int testaMapa(int **mapa, tPlayer *jogador, tObjetos *objetos, long frames, tAudio *sons, tGame *game)

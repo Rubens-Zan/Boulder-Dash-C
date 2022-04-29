@@ -15,4 +15,6 @@ void desenhaInstrucoes(ALLEGRO_FONT *fonte);
 void desenhaMapa(int **mapa, tObjetos *objetosMapa, long frames, int col, int lin, tTexturas *texturas);
 void desenhaHeader(ALLEGRO_FONT *fonte, int relogio, int vidas, int pontuacao, int diamantesJogador, int diamantesTotal, tTexturas *texturas, int nivel);
 void drawInicialMenu();
+void desenhaFim(ALLEGRO_FONT *fonte, int totalPontos, int *pontuacoes, int nPontuacoes); 
+
 #endif

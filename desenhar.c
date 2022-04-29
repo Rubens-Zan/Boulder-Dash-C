@@ -118,17 +118,20 @@ void desenhaJogador(tTexturas *texturas, int lin, int col, int direcao, int anim
   }
 }
 
-void drawEndGame(ALLEGRO_FONT *fonte, int pontuacaoTotal)
+void desenhaFim(ALLEGRO_FONT *fonte, int totalPontos, int *pontuacoes, int nPontuacoes)
 {
-  al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0, 0.9));
-  al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH / 4 + 7 * SIZE_OBJS, 20 + 2 * SIZE_OBJS, 0, "F I M D E J O G O");
-  // al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH/4 + 7 * SIZE_OBJS, 100 + 2 * SIZE_OBJS, 0, "PONTUACAO: %d",jogador->pontuacao);
-  al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH / 4 + 7 * SIZE_OBJS, 160 + 2 * SIZE_OBJS, 0, "Placar de lideres");
-  // for(int i = 0;i < 5;i++)
-  // al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH/4 + 7 * SIZE_OBJS, 220 + (i*40) + 2 * SIZE_OBJS, 0, "%d: %d pts", i + 1, pontos_totais->score[i]);
-  al_draw_textf(fonte, al_map_rgb(255, 255, 255), WIDTH / 4 + 5 * SIZE_OBJS, 500 + 2 * SIZE_OBJS, 0, "Pressione ESC para sair...");
+
+  al_draw_filled_rectangle(3 * SIZE_OBJS, 2 * SIZE_OBJS, WIDTH - 3 * SIZE_OBJS, HEIGHT - 1 * SIZE_OBJS, al_map_rgba_f(0, 0, 0,0.6));
+  al_draw_textf(fonte, al_map_rgb(255, 255, 161), WIDTH / 4 + 7 * SIZE_OBJS, 20 + 2 * SIZE_OBJS, 0, "FIM DO JOGO");
+  al_draw_textf(fonte, al_map_rgb(255,255,255),  120, 80 + 2 * SIZE_OBJS, ALLEGRO_ALIGN_LEFT, "SEU SCORE FOI: %d",totalPontos);
+
+  al_draw_textf(fonte, al_map_rgb(255, 255, 161), WIDTH / 4 + 7 * SIZE_OBJS, 160 + 2 * SIZE_OBJS, 0, "HIGHSCORES");
+  for (int i=0; i < nPontuacoes && i< 10;i++)
+    al_draw_textf(fonte, al_map_rgb(255, 255, 255), 120, 180+ 25*i + 2 * SIZE_OBJS, 0, "%d: %d",i+1,pontuacoes[i]);
+
   al_flip_display();
 }
+
 
 void desenhaInstrucoes(ALLEGRO_FONT *fonte)
 {
